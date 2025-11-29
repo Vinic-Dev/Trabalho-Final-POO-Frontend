@@ -1,21 +1,52 @@
-import React, { createContext, useState, useContext } from "react";
+import React, { createContext, useState, useContext, useEffect } from "react";
 
 const ProductContext = createContext();
 
 export const ProductProvider = ({ children }) => {
-    // Estado inicial simulado
-    const [products, setProducts] = useState([
-        { id: 1, titulo: "Pizza Calabresa", preco: "45,00", categoria: "Pratos Principais" },
-        { id: 2, titulo: "Macarrão Carbonara", preco: "32,00", categoria: "Pratos Principais" },
-        { id: 3, titulo: "Hambúrguer Artesanal", preco: "28,50", categoria: "Pratos Principais" }
-    ]);
+    const [products, setProducts] = useState([]);
 
-    const addProduct = (product) => {
-        setProducts(prev => [...prev, { ...product, id: Date.now() }]);
+    const fetchProducts = async () => {
+        try {
+            const response = await fetch("http://localhost:8080/item");
+            const data = await response.json();
+            setProducts(data);
+        } catch (error) {
+            console.error("Erro ao buscar produtos:", error);
+        }
     };
 
-    const removeProduct = (id) => {
-        setProducts(prev => prev.filter(p => p.id !== id));
+    useEffect(() => {
+        fetchProducts();
+    }, []);
+
+    const addProduct = async (product) => {
+        try {
+            const response = await fetch("http://localhost:8080/item", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(product),
+            });
+            if (response.ok) {
+                fetchProducts(); // Recarrega a lista
+            }
+        } catch (error) {
+            console.error("Erro ao adicionar produto:", error);
+        }
+    };
+
+    const removeProduct = async (id) => {
+        try {
+            const response = await fetch(`http://localhost:8080/item/${id}`, {
+                method: "DELETE",
+            });
+            if (response.ok) {
+                setProducts(prev => prev.filter(p => p.id !== id));
+            }
+        } catch (error) {
+            console.error("Erro ao remover produto:", error);
+        }
     };
 
     return (

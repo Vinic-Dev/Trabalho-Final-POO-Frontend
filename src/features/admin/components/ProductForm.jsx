@@ -6,6 +6,8 @@ const ProductForm = ({ onSuccess }) => {
     const { addProduct } = useProducts();
     const [nome, setNome] = useState("");
     const [preco, setPreco] = useState("");
+    const [imageUrl, setImageUrl] = useState("");
+    const [categoria, setCategoria] = useState("Pratos Principais");
     const [sucesso, setSucesso] = useState(false);
 
     const handleSubmit = (e) => {
@@ -13,9 +15,11 @@ const ProductForm = ({ onSuccess }) => {
         if (!nome) return;
 
         const novoPrato = {
-            titulo: nome,
-            preco: preco || "0,00",
-            categoria: "Pratos Principais" // Default category
+            name: nome,
+            descricao: "Delicioso prato", // Default description or add field
+            preco: parseFloat(preco.replace(',', '.')) || 0,
+            categoria: categoria,
+            imageUrl: imageUrl
         };
 
         addProduct(novoPrato);
@@ -23,6 +27,7 @@ const ProductForm = ({ onSuccess }) => {
         setSucesso(true);
         setNome("");
         setPreco("");
+        setImageUrl("");
         if (onSuccess) onSuccess();
         setTimeout(() => setSucesso(false), 3000);
     };
@@ -69,7 +74,11 @@ const ProductForm = ({ onSuccess }) => {
 
                     <div>
                         <label className="block text-sm font-medium text-slate-700 mb-2">Categoria</label>
-                        <select className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-red-100 focus:border-red-500 outline-none bg-white">
+                        <select
+                            value={categoria}
+                            onChange={(e) => setCategoria(e.target.value)}
+                            className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-red-100 focus:border-red-500 outline-none bg-white"
+                        >
                             <option>Pratos Principais</option>
                             <option>Bebidas</option>
                             <option>Sobremesas</option>
@@ -83,6 +92,8 @@ const ProductForm = ({ onSuccess }) => {
                                 <ImageIcon className="absolute left-4 top-3.5 text-slate-400" size={18} />
                                 <input
                                     type="text"
+                                    value={imageUrl}
+                                    onChange={(e) => setImageUrl(e.target.value)}
                                     className="w-full pl-10 pr-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-red-100 focus:border-red-500 outline-none transition-all"
                                     placeholder="https://..."
                                 />

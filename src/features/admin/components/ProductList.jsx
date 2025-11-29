@@ -24,12 +24,18 @@ const ProductList = () => {
                     {products.map((prato) => (
                         <div key={prato.id} className="p-4 flex items-center justify-between hover:bg-slate-50 transition-colors">
                             <div className="flex items-center gap-4">
-                                <div className="w-12 h-12 bg-amber-100 rounded-lg flex items-center justify-center text-xl">
-                                    🍽️
+                                <div className="w-12 h-12 bg-amber-100 rounded-lg flex items-center justify-center text-xl overflow-hidden">
+                                    {prato.imageUrl ? (
+                                        <img src={prato.imageUrl} alt={prato.name} className="w-full h-full object-cover" />
+                                    ) : (
+                                        "🍽️"
+                                    )}
                                 </div>
                                 <div>
-                                    <h3 className="font-bold text-slate-800">{prato.titulo}</h3>
-                                    <p className="text-sm text-slate-500 font-medium">R$ {prato.preco}</p>
+                                    <h3 className="font-bold text-slate-800">{prato.name}</h3>
+                                    <p className="text-sm text-slate-500 font-medium">
+                                        {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(prato.preco)}
+                                    </p>
                                 </div>
                             </div>
                             <div className="flex gap-2">
