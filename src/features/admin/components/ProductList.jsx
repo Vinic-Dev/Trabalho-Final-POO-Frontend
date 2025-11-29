@@ -20,31 +20,61 @@ const ProductList = () => {
                     <p>Nenhum prato cadastrado ainda.</p>
                 </div>
             ) : (
-                <div className="divide-y divide-slate-100">
+                <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
                     {products.map((prato) => (
-                        <div key={prato.id} className="p-4 flex items-center justify-between hover:bg-slate-50 transition-colors">
-                            <div className="flex items-center gap-4">
-                                <div className="w-12 h-12 bg-amber-100 rounded-lg flex items-center justify-center text-xl overflow-hidden">
-                                    {prato.imageUrl ? (
-                                        <img src={prato.imageUrl} alt={prato.name} className="w-full h-full object-cover" />
-                                    ) : (
-                                        "🍽️"
-                                    )}
-                                </div>
+                        <div
+                            key={prato.id}
+                            className="group relative bg-white rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 flex overflow-hidden border border-gray-100 h-40 w-full text-left"
+                        >
+                            <div className="absolute left-0 top-0 h-full w-1 bg-gradient-to-b from-red-400 to-amber-400 group-hover:w-2 transition-all z-10"></div>
+
+                            {/* Image Section - Left */}
+                            <div className="w-40 h-full relative shrink-0">
+                                {prato.imageUrl ? (
+                                    <img
+                                        src={prato.imageUrl}
+                                        alt={prato.name}
+                                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                                    />
+                                ) : (
+                                    <div className="w-full h-full bg-amber-50 flex items-center justify-center">
+                                        <span className="text-4xl">🍽️</span>
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* Content Section - Right */}
+                            <div className="flex-1 p-4 flex flex-col justify-between">
                                 <div>
-                                    <h3 className="font-bold text-slate-800">{prato.name}</h3>
-                                    <p className="text-sm text-slate-500 font-medium">
-                                        {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(prato.preco)}
+                                    <h3 className="font-bold text-gray-800 text-lg group-hover:text-red-600 transition-colors line-clamp-1 mb-1">
+                                        {prato.name}
+                                    </h3>
+                                    <p className="text-gray-500 text-sm line-clamp-2 leading-relaxed">
+                                        {prato.descricao || "Sem descrição definida."}
                                     </p>
                                 </div>
-                            </div>
-                            <div className="flex gap-2">
-                                <button className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors" title="Editar">
-                                    <Edit size={18} />
-                                </button>
-                                <button onClick={() => removeProduct(prato.id)} className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors" title="Excluir">
-                                    <Trash2 size={18} />
-                                </button>
+
+                                <div className="flex items-center justify-between mt-2 gap-3">
+                                    <span className="text-green-600 font-bold text-lg">
+                                        {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(prato.preco)}
+                                    </span>
+
+                                    <div className="flex gap-2">
+                                        <button
+                                            className="p-2 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition-colors"
+                                            title="Editar"
+                                        >
+                                            <Edit size={18} />
+                                        </button>
+                                        <button
+                                            onClick={() => removeProduct(prato.id)}
+                                            className="p-2 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition-colors"
+                                            title="Excluir"
+                                        >
+                                            <Trash2 size={18} />
+                                        </button>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     ))}
