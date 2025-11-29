@@ -133,8 +133,24 @@ export const ProductProvider = ({ children }) => {
         }
     };
 
+    const [orders, setOrders] = useState([]);
+
+    const fetchOrders = async () => {
+        try {
+            const response = await fetch("http://localhost:8080/pedidos");
+            const data = await response.json();
+            setOrders(data);
+        } catch (error) {
+            console.error("Erro ao buscar pedidos:", error);
+        }
+    };
+
+    useEffect(() => {
+        fetchOrders();
+    }, []);
+
     return (
-        <ProductContext.Provider value={{ products, addProduct, removeProduct, uploadImage, cart, addToCart, removeFromCart, submitOrder }}>
+        <ProductContext.Provider value={{ products, addProduct, removeProduct, uploadImage, cart, addToCart, removeFromCart, submitOrder, orders, fetchOrders }}>
             {children}
         </ProductContext.Provider>
     );

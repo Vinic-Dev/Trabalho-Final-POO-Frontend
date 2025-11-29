@@ -5,6 +5,7 @@ import useAuth from "../hooks/useAuth";
 import { useProducts } from "../context/ProductContext";
 import ProductForm from "../features/admin/components/ProductForm";
 import ProductList from "../features/admin/components/ProductList";
+import OrderList from "../features/admin/components/OrderList";
 
 const AdminDashboard = () => {
     const navigate = useNavigate();
@@ -21,8 +22,8 @@ const AdminDashboard = () => {
         <button
             onClick={() => setPaginaAtiva(id)}
             className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all font-medium ${paginaAtiva === id
-                    ? "bg-red-600 text-white shadow-lg shadow-red-900/20"
-                    : "text-slate-400 hover:bg-slate-800 hover:text-white"
+                ? "bg-red-600 text-white shadow-lg shadow-red-900/20"
+                : "text-slate-400 hover:bg-slate-800 hover:text-white"
                 }`}
         >
             <Icon size={20} />
@@ -96,6 +97,9 @@ const AdminDashboard = () => {
                                 <p className="text-3xl font-bold text-slate-800">4</p>
                             </div>
                         </div>
+
+                        {/* Order List Section */}
+                        <OrderList />
                     </div>
                 )}
 
