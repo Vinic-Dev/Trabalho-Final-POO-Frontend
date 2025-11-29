@@ -1,16 +1,60 @@
-# React + Vite
+## 🚀 Funcionalidades
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+### 📱 Para o Cliente (Cardápio Digital)
+- **Visualização de Produtos**: Cardápio interativo com produtos organizados por categorias (ex: Pratos Principais, Bebidas).
+- **Design**: Cards de produtos com layout horizontal, imagens em destaque e separadores de categoria elegantes.
+- **Carrinho de Compras**: Adição e remoção de itens, com cálculo automático do total.
+- **Envio de Pedidos**: Fluxo simples para informar o número da mesa e enviar o pedido para a cozinha.
 
-Currently, two official plugins are available:
+### 🛡️ Para o Gerente (Painel Administrativo)
+- **Dashboard (Visão Geral)**:
+    - **Monitoramento de Pedidos**: Lista em tempo real dos pedidos realizados, com detalhes da mesa, itens e valor total.
+    - **Cálculo Automático**: O frontend calcula o total do pedido dinamicamente.
+- **Gerenciamento de Produtos**:
+    - **Adicionar Pratos**: Formulário completo com upload de imagens (integração com backend).
+    - **Remover Pratos**: Exclusão fácil de itens do cardápio.
+- **Upload de Imagens**: Integração para envio de fotos dos pratos.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## 🛠️ Tecnologias Utilizadas
 
-## React Compiler
+- **React**: Biblioteca principal para construção da interface.
+- **Vite**: Build tool rápida e leve.
+- **Tailwind CSS**: Framework de estilização para um design responsivo e moderno.
+- **Lucide React**: Biblioteca de ícones para uma interface visualmente rica.
+- **Context API**: Gerenciamento de estado global (Carrinho, Produtos, Pedidos).
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## 📦 Como Executar
 
-## Expanding the ESLint configuration
+1.  **Clone o repositório**:
+    ```bash
+    git clone https://github.com/Vinic-Dev/Trabalho-Final-POO-Frontend.git
+    cd Trabalho-Final-POO-Frontend
+    ```
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+2.  **Instale as dependências**:
+    ```bash
+    npm install
+    ```
+
+3.  **Execute o projeto**:
+    ```bash
+    npm run dev
+    ```
+
+4.  **Acesse no navegador**:
+    O projeto estará rodando em `http://localhost:5173` (ou porta similar indicada no terminal).
+
+## 🔗 Integração com Backend
+
+Este frontend foi projetado para se comunicar com uma API Java Spring Boot.
+- **Endpoints Principais**:
+    - `GET /item`: Listar produtos.
+    - `POST /item`: Adicionar produto.
+    - `DELETE /item/{id}`: Remover produto.
+    - `POST /item/upload`: Upload de imagens.
+    - `POST /pedidos`: Enviar novo pedido.
+    - `GET /pedidos`: Listar pedidos (Admin).
+
+---
+
+Desenvolvido por Vinic-Dev.
