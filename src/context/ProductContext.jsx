@@ -7,7 +7,7 @@ export const ProductProvider = ({ children }) => {
 
     const fetchProducts = async () => {
         try {
-            const response = await fetch("http://localhost:8080/item");
+            const response = await fetch(`${import.meta.env.VITE_API_URL}/item`);
             const data = await response.json();
             setProducts(data);
         } catch (error) {
@@ -21,7 +21,7 @@ export const ProductProvider = ({ children }) => {
 
     const addProduct = async (product) => {
         try {
-            const response = await fetch("http://localhost:8080/item", {
+            const response = await fetch(`${import.meta.env.VITE_API_URL}/item`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -38,7 +38,7 @@ export const ProductProvider = ({ children }) => {
 
     const removeProduct = async (id) => {
         try {
-            const response = await fetch(`http://localhost:8080/item/${id}`, {
+            const response = await fetch(`${import.meta.env.VITE_API_URL}/item/${id}`, {
                 method: "DELETE",
             });
             if (response.ok) {
@@ -54,7 +54,7 @@ export const ProductProvider = ({ children }) => {
         formData.append("file", file);
 
         try {
-            const response = await fetch("http://localhost:8080/item/upload", {
+            const response = await fetch(`${import.meta.env.VITE_API_URL}/item/upload`, {
                 method: "POST",
                 body: formData,
             });
@@ -114,7 +114,7 @@ export const ProductProvider = ({ children }) => {
         console.log("Enviando pedido:", JSON.stringify(payload, null, 2));
 
         try {
-            const response = await fetch("http://localhost:8080/pedidos", {
+            const response = await fetch(`${import.meta.env.VITE_API_URL}/pedidos`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -137,7 +137,7 @@ export const ProductProvider = ({ children }) => {
 
     const fetchOrders = async () => {
         try {
-            const response = await fetch("http://localhost:8080/pedidos");
+            const response = await fetch(`${import.meta.env.VITE_API_URL}/pedidos`);
             const data = await response.json();
             setOrders(data);
         } catch (error) {
