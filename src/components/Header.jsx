@@ -1,20 +1,22 @@
+import React from "react";
 import { Lock } from "lucide-react";
-import logoImagem from '../assets/logo.png';
+import { useNavigate } from "react-router-dom";
+import logoImagem from "../assets/logo.png";
 
-export default function Header() {
-    // Removemos a prop onAdminClick, pois vamos usar link direto
+const Header = () => {
+    const navigate = useNavigate();
+
     return (
         <div className="bg-red-600 py-6 relative shadow-lg">
             <div className="absolute top-4 right-4">
-                {/* Mudamos de <button> para <a> (link direto) */}
-                <a
-                    href="/admin.html"
+                <button
+                    onClick={() => navigate('/login')}
                     className="text-white/80 hover:text-white hover:bg-red-700 p-2 rounded-full transition-colors flex items-center gap-2 text-sm group"
                     title="Acesso Gerente"
                 >
                     <span className="hidden sm:inline font-medium group-hover:underline decoration-red-400 underline-offset-4">Gerente</span>
                     <Lock size={20} />
-                </a>
+                </button>
             </div>
 
             <div className="flex justify-center">
@@ -22,4 +24,6 @@ export default function Header() {
             </div>
         </div>
     );
-}
+};
+
+export default Header;
