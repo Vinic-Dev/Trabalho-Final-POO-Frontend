@@ -49,8 +49,31 @@ export const ProductProvider = ({ children }) => {
         }
     };
 
+    const uploadImage = async (file) => {
+        const formData = new FormData();
+        formData.append("file", file);
+
+        try {
+            const response = await fetch("http://localhost:8080/item/upload", {
+                method: "POST",
+                body: formData,
+            });
+
+            if (response.ok) {
+                const text = await response.text();
+                return text; // Assumes the backend returns the URL as plain text
+            } else {
+                console.error("Erro no upload da imagem");
+                return null;
+            }
+        } catch (error) {
+            console.error("Erro ao fazer upload da imagem:", error);
+            return null;
+        }
+    };
+
     return (
-        <ProductContext.Provider value={{ products, addProduct, removeProduct }}>
+        <ProductContext.Provider value={{ products, addProduct, removeProduct, uploadImage }}>
             {children}
         </ProductContext.Provider>
     );

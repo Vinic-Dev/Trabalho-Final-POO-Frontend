@@ -3,22 +3,43 @@ import { PlusCircle, CheckCircle2, ImageIcon } from "lucide-react";
 import { useProducts } from "../../../context/ProductContext";
 
 const ProductForm = ({ onSuccess }) => {
-    const { addProduct } = useProducts();
+    const { addProduct, uploadImage } = useProducts();
     const [nome, setNome] = useState("");
+    const [descricao, setDescricao] = useState("");
     const [preco, setPreco] = useState("");
     const [imageUrl, setImageUrl] = useState("");
     const [categoria, setCategoria] = useState("Pratos Principais");
     const [sucesso, setSucesso] = useState(false);
+    const [uploading, setUploading] = useState(false);
+
+    const handleImageUpload = async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        setUploading(true);
+        const url = await uploadImage(file);
+        if (url) {
+            setImageUrl(url);
+        }
+        setUploading(false);
+    };
 
     const handleSubmit = (e) => {
         e.preventDefault();
         if (!nome) return;
 
+        // Map categories to backend Enums
+        const categoryMap = {
+            "Pratos Principais": "PRATOS_PRINCIPAIS",
+            "Bebidas": "BEBIDAS",
+            "Sobremesas": "SOBREMESAS"
+        };
+
         const novoPrato = {
             name: nome,
-            descricao: "Delicioso prato", // Default description or add field
+            descricao: descricao || "Sem descrição",
             preco: parseFloat(preco.replace(',', '.')) || 0,
-            categoria: categoria,
+            categoria: categoryMap[categoria] || "PRATOS_PRINCIPAIS",
             imageUrl: imageUrl
         };
 
@@ -26,6 +47,7 @@ const ProductForm = ({ onSuccess }) => {
 
         setSucesso(true);
         setNome("");
+        setDescricao("");
         setPreco("");
         setImageUrl("");
         if (onSuccess) onSuccess();
@@ -58,6 +80,16 @@ const ProductForm = ({ onSuccess }) => {
                         />
                     </div>
 
+                    <div className="col-span-2">
+                        <label className="block text-sm font-medium text-slate-700 mb-2">Descrição</label>
+                        <textarea
+                            value={descricao}
+                            onChange={(e) => setDescricao(e.target.value)}
+                            className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-red-100 focus:border-red-500 outline-none transition-all resize-none h-24"
+                            placeholder="Ex: Acompanha arroz, feijão e fritas..."
+                        />
+                    </div>
+
                     <div>
                         <label className="block text-sm font-medium text-slate-700 mb-2">Preço (R$)</label>
                         <div className="relative">
@@ -86,21 +118,28 @@ const ProductForm = ({ onSuccess }) => {
                     </div>
 
                     <div className="col-span-2">
-                        <label className="block text-sm font-medium text-slate-700 mb-2">URL da Imagem (Opcional)</label>
+                        <label className="block text-sm font-medium text-slate-700 mb-2">Imagem do Prato</label>
                         <div className="flex gap-2">
                             <div className="flex-1 relative">
                                 <ImageIcon className="absolute left-4 top-3.5 text-slate-400" size={18} />
                                 <input
                                     type="text"
                                     value={imageUrl}
-                                    onChange={(e) => setImageUrl(e.target.value)}
-                                    className="w-full pl-10 pr-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-red-100 focus:border-red-500 outline-none transition-all"
-                                    placeholder="https://..."
+                                    readOnly
+                                    className="w-full pl-10 pr-4 py-3 border border-slate-200 rounded-xl bg-slate-50 text-slate-500 focus:outline-none"
+                                    placeholder="URL da imagem será gerada aqui..."
                                 />
                             </div>
-                            <button type="button" className="px-4 py-2 bg-slate-100 text-slate-600 rounded-xl hover:bg-slate-200 transition-colors font-medium">
-                                Upload
-                            </button>
+                            <label className={`px-4 py-2 bg-slate-100 text-slate-600 rounded-xl hover:bg-slate-200 transition-colors font-medium cursor-pointer flex items-center ${uploading ? 'opacity-50 cursor-not-allowed' : ''}`}>
+                                {uploading ? 'Enviando...' : 'Upload'}
+                                <input
+                                    type="file"
+                                    className="hidden"
+                                    accept="image/*"
+                                    onChange={handleImageUpload}
+                                    disabled={uploading}
+                                />
+                            </label>
                         </div>
                     </div>
                 </div>
