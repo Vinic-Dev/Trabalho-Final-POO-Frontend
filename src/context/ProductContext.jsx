@@ -72,8 +72,69 @@ export const ProductProvider = ({ children }) => {
         }
     };
 
+    const [cart, setCart] = useState([]);
+
+    const addToCart = (product) => {
+        setCart(prev => {
+            const existing = prev.find(item => item.product.id === product.id);
+            if (existing) {
+                return prev.map(item =>
+                    item.product.id === product.id
+                        ? { ...item, quantity: item.quantity + 1 }
+                        : item
+                );
+            }
+            return [...prev, { product, quantity: 1 }];
+        });
+    };
+
+    const removeFromCart = (productId) => {
+        setCart(prev => prev.filter(item => item.product.id !== productId));
+    };
+
+    const submitOrder = async (tableNumber) => {
+        if (!tableNumber || cart.length === 0) return false;
+
+        const itensMap = {};
+        cart.forEach(item => {
+            itensMap[item.product.id] = item.quantity;
+        });
+
+        const mesaInt = parseInt(tableNumber);
+        if (isNaN(mesaInt)) {
+            console.error("Número da mesa inválido");
+            return false;
+        }
+
+        const payload = {
+            mesa: mesaInt,
+            itens: itensMap
+        };
+
+        console.log("Enviando pedido:", JSON.stringify(payload, null, 2));
+
+        try {
+            const response = await fetch("http://localhost:8080/pedidos", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(payload),
+            });
+
+            if (response.ok) {
+                setCart([]); // Limpa o carrinho
+                return true;
+            }
+            return false;
+        } catch (error) {
+            console.error("Erro ao enviar pedido:", error);
+            return false;
+        }
+    };
+
     return (
-        <ProductContext.Provider value={{ products, addProduct, removeProduct, uploadImage }}>
+        <ProductContext.Provider value={{ products, addProduct, removeProduct, uploadImage, cart, addToCart, removeFromCart, submitOrder }}>
             {children}
         </ProductContext.Provider>
     );
