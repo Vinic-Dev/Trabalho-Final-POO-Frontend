@@ -137,9 +137,19 @@ export const ProductProvider = ({ children }) => {
 
     const fetchOrders = async () => {
         try {
-            const response = await fetch(`${import.meta.env.VITE_API_URL}/pedidos`);
+            const url = `${import.meta.env.VITE_API_URL}/pedidos`;
+            console.log("Fetching orders from:", url);
+            const response = await fetch(url);
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
             const data = await response.json();
-            setOrders(data);
+            // Adiciona status localmente se não vier do backend
+            const ordersWithStatus = data.map(order => ({
+                ...order,
+                status: order.status || 'pendente'
+            }));
+            setOrders(ordersWithStatus);
         } catch (error) {
             console.error("Erro ao buscar pedidos:", error);
         }
@@ -149,8 +159,16 @@ export const ProductProvider = ({ children }) => {
         fetchOrders();
     }, []);
 
+    const updateOrderStatus = (orderId, newStatus) => {
+        setOrders(prevOrders =>
+            prevOrders.map(order =>
+                order.id === orderId ? { ...order, status: newStatus } : order
+            )
+        );
+    };
+
     return (
-        <ProductContext.Provider value={{ products, addProduct, removeProduct, uploadImage, cart, addToCart, removeFromCart, submitOrder, orders, fetchOrders }}>
+        <ProductContext.Provider value={{ products, addProduct, removeProduct, uploadImage, cart, addToCart, removeFromCart, submitOrder, orders, fetchOrders, updateOrderStatus }}>
             {children}
         </ProductContext.Provider>
     );

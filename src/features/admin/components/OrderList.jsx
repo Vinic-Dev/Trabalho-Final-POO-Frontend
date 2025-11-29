@@ -1,9 +1,9 @@
 import React from "react";
 import { useProducts } from "../../../context/ProductContext";
-import { Clock, MapPin, DollarSign, Package } from "lucide-react";
+import { Clock, MapPin, CheckCircle2, ChefHat, Package } from "lucide-react";
 
 const OrderList = () => {
-    const { orders } = useProducts();
+    const { orders, updateOrderStatus } = useProducts();
 
     const calculateTotal = (order) => {
         if (order.precoTotal && order.precoTotal > 0) return order.precoTotal;
@@ -53,6 +53,41 @@ const OrderList = () => {
                                     {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(calculateTotal(order))}
                                 </span>
                             </div>
+                        </div>
+
+                        {/* Status Bar */}
+                        <div className="flex items-center gap-2 mb-4 bg-slate-50 p-2 rounded-lg">
+                            <span className="text-sm font-bold text-slate-600 mr-2">Status:</span>
+
+                            <button
+                                onClick={() => updateOrderStatus(order.id, 'pendente')}
+                                className={`px-3 py-1 rounded-md text-xs font-bold transition-all ${order.status === 'pendente'
+                                        ? 'bg-slate-200 text-slate-700 shadow-sm'
+                                        : 'text-slate-400 hover:bg-slate-100'
+                                    }`}
+                            >
+                                Pendente
+                            </button>
+
+                            <button
+                                onClick={() => updateOrderStatus(order.id, 'preparando')}
+                                className={`flex items-center gap-1 px-3 py-1 rounded-md text-xs font-bold transition-all ${order.status === 'preparando'
+                                        ? 'bg-amber-100 text-amber-700 shadow-sm'
+                                        : 'text-slate-400 hover:bg-amber-50 hover:text-amber-600'
+                                    }`}
+                            >
+                                <ChefHat size={12} /> Preparando
+                            </button>
+
+                            <button
+                                onClick={() => updateOrderStatus(order.id, 'concluido')}
+                                className={`flex items-center gap-1 px-3 py-1 rounded-md text-xs font-bold transition-all ${order.status === 'concluido'
+                                        ? 'bg-green-100 text-green-700 shadow-sm'
+                                        : 'text-slate-400 hover:bg-green-50 hover:text-green-600'
+                                    }`}
+                            >
+                                <CheckCircle2 size={12} /> Concluído
+                            </button>
                         </div>
 
                         <div className="space-y-3">

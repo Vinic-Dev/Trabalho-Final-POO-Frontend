@@ -10,7 +10,7 @@ import OrderList from "../features/admin/components/OrderList";
 const AdminDashboard = () => {
     const navigate = useNavigate();
     const { logout } = useAuth();
-    const { products } = useProducts();
+    const { products, orders } = useProducts();
     const [paginaAtiva, setPaginaAtiva] = useState("dashboard");
 
     const handleLogout = () => {
@@ -87,14 +87,25 @@ const AdminDashboard = () => {
                                     <div className="p-3 bg-green-50 text-green-600 rounded-xl"><DollarSign size={24} /></div>
                                 </div>
                                 <h3 className="text-slate-500 text-sm font-medium">Vendas Hoje</h3>
-                                <p className="text-3xl font-bold text-slate-800">R$ 1.250</p>
+                                <p className="text-3xl font-bold text-slate-800">
+                                    {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(
+                                        orders
+                                            .filter(o => o.status === 'concluido')
+                                            .reduce((acc, order) => {
+                                                const total = order.precoTotal || order.itens.reduce((sum, item) => sum + (item.item.preco * item.quantidade), 0);
+                                                return acc + total;
+                                            }, 0)
+                                    )}
+                                </p>
                             </div>
                             <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
                                 <div className="flex justify-between items-start mb-4">
                                     <div className="p-3 bg-amber-50 text-amber-600 rounded-xl"><Utensils size={24} /></div>
                                 </div>
                                 <h3 className="text-slate-500 text-sm font-medium">Pedidos Pendentes</h3>
-                                <p className="text-3xl font-bold text-slate-800">4</p>
+                                <p className="text-3xl font-bold text-slate-800">
+                                    {orders.filter(o => o.status !== 'concluido').length}
+                                </p>
                             </div>
                         </div>
 
