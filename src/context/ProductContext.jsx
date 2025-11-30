@@ -203,7 +203,9 @@ export const ProductProvider = ({ children }) => {
                 notify("Categoria criada com sucesso!", "success");
                 return true;
             } else {
-                notify("Erro ao criar categoria.", "error");
+                const errorText = await response.text();
+                console.error("Erro ao criar categoria. Status:", response.status, "Body:", errorText);
+                notify("Erro ao criar categoria. Verifique o console.", "error");
                 return false;
             }
         } catch (error) {

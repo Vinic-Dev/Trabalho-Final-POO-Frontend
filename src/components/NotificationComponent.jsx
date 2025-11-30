@@ -40,7 +40,15 @@ const NotificationComponent = () => {
 
         // Cleanup on unmount
         return () => {
-            if (stompClient) stompClient.disconnect();
+            try {
+                if (stompClient && stompClient.connected) {
+                    stompClient.disconnect(() => {
+                        console.log('Disconnected');
+                    });
+                }
+            } catch (e) {
+                console.warn("Erro ao desconectar WebSocket:", e);
+            }
         };
     }, [fetchOrders]);
 
