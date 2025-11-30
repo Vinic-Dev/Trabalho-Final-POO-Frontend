@@ -150,21 +150,21 @@ export const ProductProvider = ({ children }) => {
         setCart(prev => {
             const existing = prev.find(item => item.product.id === product.id);
             if (existing) {
-                notify("Quantidade atualizada no carrinho!", "info");
+                // notify("Quantidade atualizada no carrinho!", "info");
                 return prev.map(item =>
                     item.product.id === product.id
                         ? { ...item, quantity: item.quantity + 1 }
                         : item
                 );
             }
-            notify("Produto adicionado ao carrinho!", "success");
+            // notify("Produto adicionado ao carrinho!", "success");
             return [...prev, { product, quantity: 1 }];
         });
     };
 
     const removeFromCart = (productId) => {
         setCart(prev => prev.filter(item => item.product.id !== productId));
-        notify("Produto removido do carrinho.", "info");
+        // notify("Produto removido do carrinho.", "info");
     };
 
     const submitOrder = async (tableNumber) => {
