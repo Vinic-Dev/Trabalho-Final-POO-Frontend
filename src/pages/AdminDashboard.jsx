@@ -10,6 +10,8 @@ import AdminSidebar from "../features/admin/components/AdminSidebar";
 import StatsCard from "../features/admin/components/StatsCard";
 import { formatCurrency } from "../utils/formatters";
 
+import NotificationComponent from "../components/NotificationComponent";
+
 const AdminDashboard = () => {
     const navigate = useNavigate();
     const { logout } = useAuth();
@@ -43,6 +45,7 @@ const AdminDashboard = () => {
 
     return (
         <div className="min-h-screen bg-slate-50 flex">
+            <NotificationComponent />
             {/* Sidebar */}
             <AdminSidebar
                 activePage={paginaAtiva}

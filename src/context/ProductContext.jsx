@@ -236,11 +236,6 @@ export const ProductProvider = ({ children }) => {
 
     useEffect(() => {
         fetchOrders();
-        const interval = setInterval(() => {
-            fetchOrders();
-        }, 5000); // Poll every 5 seconds
-
-        return () => clearInterval(interval);
     }, []);
 
     return (
