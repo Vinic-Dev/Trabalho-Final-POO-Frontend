@@ -1,9 +1,19 @@
-import React from "react";
+import React, { useState } from "react";
 import { Trash2, Edit, List } from "lucide-react";
 import { useProducts } from "../../../context/ProductContext";
+import { formatCurrency } from "../../../utils/formatters";
+import Modal from "../../../components/ui/Modal";
 
-const ProductList = () => {
+const ProductList = ({ onEdit }) => {
     const { products, removeProduct } = useProducts();
+    const [productToDelete, setProductToDelete] = useState(null);
+
+    const confirmDelete = () => {
+        if (productToDelete) {
+            removeProduct(productToDelete.id);
+            setProductToDelete(null);
+        }
+    };
 
     return (
         <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
@@ -53,21 +63,21 @@ const ProductList = () => {
                                         {prato.descricao || "Sem descrição definida."}
                                     </p>
                                 </div>
-
                                 <div className="flex items-center justify-between mt-2 gap-3">
                                     <span className="text-green-600 font-bold text-lg">
-                                        {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(prato.preco)}
+                                        {formatCurrency(prato.preco)}
                                     </span>
 
                                     <div className="flex gap-2">
                                         <button
+                                            onClick={() => onEdit(prato)}
                                             className="p-2 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition-colors"
                                             title="Editar"
                                         >
                                             <Edit size={18} />
                                         </button>
                                         <button
-                                            onClick={() => removeProduct(prato.id)}
+                                            onClick={() => setProductToDelete(prato)}
                                             className="p-2 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition-colors"
                                             title="Excluir"
                                         >
@@ -78,9 +88,35 @@ const ProductList = () => {
                             </div>
                         </div>
                     ))}
-                </div>
+                </div >
             )}
-        </div>
+
+            <Modal
+                isOpen={!!productToDelete}
+                onClose={() => setProductToDelete(null)}
+                title="Confirmar Exclusão"
+                footer={
+                    <>
+                        <button
+                            onClick={() => setProductToDelete(null)}
+                            className="px-4 py-2 text-slate-600 hover:bg-slate-100 rounded-lg font-medium transition-colors"
+                        >
+                            Cancelar
+                        </button>
+                        <button
+                            onClick={confirmDelete}
+                            className="px-4 py-2 bg-red-600 text-white rounded-lg font-medium hover:bg-red-700 transition-colors"
+                        >
+                            Excluir Item
+                        </button>
+                    </>
+                }
+            >
+                <p className="text-slate-600">
+                    Tem certeza que deseja excluir o item <strong>{productToDelete?.name}</strong>? Esta ação não pode ser desfeita.
+                </p>
+            </Modal>
+        </div >
     );
 };
 

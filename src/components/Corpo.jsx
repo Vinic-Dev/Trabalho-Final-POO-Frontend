@@ -1,4 +1,5 @@
 import React from "react";
+import { formatCurrency } from "../utils/formatters";
 
 export default function Corpo({ products, addToCart }) {
     return (
@@ -61,7 +62,7 @@ export default function Corpo({ products, addToCart }) {
                                     <div className="flex items-center justify-between mt-2">
                                         {card.preco && (
                                             <span className="text-green-600 font-bold text-lg">
-                                                {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(card.preco)}
+                                                {formatCurrency(card.preco)}
                                             </span>
                                         )}
                                         <div className="px-3 py-1.5 rounded-lg bg-gray-50 text-xs font-bold text-gray-500 group-hover:bg-red-50 group-hover:text-red-600 transition-colors uppercase tracking-wider">

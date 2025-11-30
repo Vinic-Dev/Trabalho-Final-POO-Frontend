@@ -1,69 +1,64 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Utensils, LogOut, LayoutDashboard, PlusCircle, List, DollarSign } from "lucide-react";
+import { Utensils, List, DollarSign } from "lucide-react";
 import useAuth from "../hooks/useAuth";
 import { useProducts } from "../context/ProductContext";
 import ProductForm from "../features/admin/components/ProductForm";
 import ProductList from "../features/admin/components/ProductList";
 import OrderList from "../features/admin/components/OrderList";
+import AdminSidebar from "../features/admin/components/AdminSidebar";
+import StatsCard from "../features/admin/components/StatsCard";
+import { formatCurrency } from "../utils/formatters";
 
 const AdminDashboard = () => {
     const navigate = useNavigate();
     const { logout } = useAuth();
     const { products, orders } = useProducts();
     const [paginaAtiva, setPaginaAtiva] = useState("dashboard");
+    const [editingProduct, setEditingProduct] = useState(null);
 
     const handleLogout = () => {
         logout();
         navigate('/');
     };
 
-    const MenuButton = ({ id, icon: Icon, label }) => (
-        <button
-            onClick={() => setPaginaAtiva(id)}
-            className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all font-medium ${paginaAtiva === id
-                ? "bg-red-600 text-white shadow-lg shadow-red-900/20"
-                : "text-slate-400 hover:bg-slate-800 hover:text-white"
-                }`}
-        >
-            <Icon size={20} />
-            {label}
-        </button>
-    );
+    const handleEdit = (product) => {
+        setEditingProduct(product);
+        setPaginaAtiva('novo-prato');
+    };
+
+    const handleClearEdit = () => {
+        setEditingProduct(null);
+        setPaginaAtiva('cardapio');
+    };
+
+    const calculateTotalSales = () => {
+        return orders
+            .filter(o => o.status === 'concluido')
+            .reduce((acc, order) => {
+                const total = order.precoTotal || order.itens.reduce((sum, item) => sum + (item.item.preco * item.quantidade), 0);
+                return acc + total;
+            }, 0);
+    };
 
     return (
         <div className="min-h-screen bg-slate-50 flex">
             {/* Sidebar */}
-            <aside className="w-64 bg-slate-900 text-white flex flex-col fixed h-full z-20 transition-all duration-300">
-                <div className="p-6 border-b border-slate-800">
-                    <div className="flex items-center gap-3 text-red-500">
-                        <Utensils size={28} />
-                        <span className="font-bold text-xl text-white tracking-tight">Gerenciamento<span className="text-red-600">.</span></span>
-                    </div>
-                </div>
-
-                <nav className="flex-1 p-4 space-y-2 mt-4">
-                    <MenuButton id="dashboard" icon={LayoutDashboard} label="Visão Geral" />
-                    <MenuButton id="novo-prato" icon={PlusCircle} label="Novo Prato" />
-                    <MenuButton id="cardapio" icon={List} label="Ver Cardápio" />
-                </nav>
-
-                <div className="p-4 border-t border-slate-800">
-                    <button
-                        onClick={handleLogout}
-                        className="w-full flex items-center gap-2 text-slate-400 hover:text-red-400 hover:bg-slate-800/50 px-4 py-3 rounded-xl transition-all text-sm font-medium"
-                    >
-                        <LogOut size={18} /> Sair do Sistema
-                    </button>
-                </div>
-            </aside>
+            <AdminSidebar
+                activePage={paginaAtiva}
+                onNavigate={(page) => {
+                    setPaginaAtiva(page);
+                    if (page !== 'novo-prato') setEditingProduct(null);
+                }}
+                onLogout={handleLogout}
+            />
 
             {/* Conteúdo */}
             <main className="flex-1 ml-64 p-8 animate-in fade-in duration-500">
                 <header className="flex justify-between items-center mb-8">
                     <div>
                         <h1 className="text-2xl font-bold text-slate-800">
-                            {paginaAtiva === 'dashboard' ? 'Painel de Controle' : paginaAtiva === 'novo-prato' ? 'Gerenciar Pratos' : 'Lista do Cardápio'}
+                            {paginaAtiva === 'dashboard' ? 'Painel de Controle' : paginaAtiva === 'novo-prato' ? (editingProduct ? 'Editar Prato' : 'Gerenciar Pratos') : 'Lista do Cardápio'}
                         </h1>
                         <p className="text-slate-500 text-sm">Bem-vindo de volta, Gerente.</p>
                     </div>
@@ -75,38 +70,27 @@ const AdminDashboard = () => {
                 {paginaAtiva === 'dashboard' && (
                     <div className="space-y-6">
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                            <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
-                                <div className="flex justify-between items-start mb-4">
-                                    <div className="p-3 bg-blue-50 text-blue-600 rounded-xl"><List size={24} /></div>
-                                </div>
-                                <h3 className="text-slate-500 text-sm font-medium">Total de Pratos</h3>
-                                <p className="text-3xl font-bold text-slate-800">{products.length}</p>
-                            </div>
-                            <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
-                                <div className="flex justify-between items-start mb-4">
-                                    <div className="p-3 bg-green-50 text-green-600 rounded-xl"><DollarSign size={24} /></div>
-                                </div>
-                                <h3 className="text-slate-500 text-sm font-medium">Vendas Hoje</h3>
-                                <p className="text-3xl font-bold text-slate-800">
-                                    {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(
-                                        orders
-                                            .filter(o => o.status === 'concluido')
-                                            .reduce((acc, order) => {
-                                                const total = order.precoTotal || order.itens.reduce((sum, item) => sum + (item.item.preco * item.quantidade), 0);
-                                                return acc + total;
-                                            }, 0)
-                                    )}
-                                </p>
-                            </div>
-                            <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
-                                <div className="flex justify-between items-start mb-4">
-                                    <div className="p-3 bg-amber-50 text-amber-600 rounded-xl"><Utensils size={24} /></div>
-                                </div>
-                                <h3 className="text-slate-500 text-sm font-medium">Pedidos Pendentes</h3>
-                                <p className="text-3xl font-bold text-slate-800">
-                                    {orders.filter(o => o.status !== 'concluido').length}
-                                </p>
-                            </div>
+                            <StatsCard
+                                icon={List}
+                                iconBg="bg-blue-50"
+                                iconColor="text-blue-600"
+                                title="Total de Pratos"
+                                value={products.length}
+                            />
+                            <StatsCard
+                                icon={DollarSign}
+                                iconBg="bg-green-50"
+                                iconColor="text-green-600"
+                                title="Vendas Hoje"
+                                value={formatCurrency(calculateTotalSales())}
+                            />
+                            <StatsCard
+                                icon={Utensils}
+                                iconBg="bg-amber-50"
+                                iconColor="text-amber-600"
+                                title="Pedidos Pendentes"
+                                value={orders.filter(o => o.status !== 'concluido').length}
+                            />
                         </div>
 
                         {/* Order List Section */}
@@ -115,11 +99,15 @@ const AdminDashboard = () => {
                 )}
 
                 {paginaAtiva === 'novo-prato' && (
-                    <ProductForm onSuccess={() => setPaginaAtiva('cardapio')} />
+                    <ProductForm
+                        onSuccess={handleClearEdit}
+                        initialData={editingProduct}
+                        onClearEdit={() => setEditingProduct(null)}
+                    />
                 )}
 
                 {paginaAtiva === 'cardapio' && (
-                    <ProductList />
+                    <ProductList onEdit={handleEdit} />
                 )}
             </main>
         </div>

@@ -1,13 +1,23 @@
-import React from "react";
+import React, { useState } from "react";
 import { useProducts } from "../../../context/ProductContext";
-import { Clock, MapPin, CheckCircle2, ChefHat, Package } from "lucide-react";
+import { Clock, MapPin, CheckCircle2, ChefHat, Package, Trash2 } from "lucide-react";
+import { formatCurrency } from "../../../utils/formatters";
+import Modal from "../../../components/ui/Modal";
 
 const OrderList = () => {
-    const { orders, updateOrderStatus } = useProducts();
+    const { orders, updateOrderStatus, removeOrder } = useProducts();
+    const [orderToDelete, setOrderToDelete] = useState(null);
 
     const calculateTotal = (order) => {
         if (order.precoTotal && order.precoTotal > 0) return order.precoTotal;
         return order.itens.reduce((acc, itemObj) => acc + (itemObj.item.preco * itemObj.quantidade), 0);
+    };
+
+    const confirmDelete = () => {
+        if (orderToDelete) {
+            removeOrder(orderToDelete);
+            setOrderToDelete(null);
+        }
     };
 
     if (!orders || orders.length === 0) {
@@ -47,11 +57,19 @@ const OrderList = () => {
                                     </div>
                                 </div>
                             </div>
-                            <div className="text-right">
-                                <span className="block text-xs text-slate-500 uppercase font-bold tracking-wider">Total do Pedido</span>
-                                <span className="text-2xl font-bold text-green-600">
-                                    {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(calculateTotal(order))}
-                                </span>
+                            <div className="text-right flex flex-col items-end gap-2">
+                                <div>
+                                    <span className="block text-xs text-slate-500 uppercase font-bold tracking-wider">Total do Pedido</span>
+                                    <span className="text-2xl font-bold text-green-600">
+                                        {formatCurrency(calculateTotal(order))}
+                                    </span>
+                                </div>
+                                <button
+                                    onClick={() => setOrderToDelete(order.id)}
+                                    className="flex items-center gap-1 text-red-500 hover:text-red-700 hover:bg-red-50 px-2 py-1 rounded-lg transition-colors text-xs font-bold"
+                                >
+                                    <Trash2 size={14} /> Excluir
+                                </button>
                             </div>
                         </div>
 
@@ -62,8 +80,8 @@ const OrderList = () => {
                             <button
                                 onClick={() => updateOrderStatus(order.id, 'pendente')}
                                 className={`px-3 py-1 rounded-md text-xs font-bold transition-all ${order.status === 'pendente'
-                                        ? 'bg-slate-200 text-slate-700 shadow-sm'
-                                        : 'text-slate-400 hover:bg-slate-100'
+                                    ? 'bg-slate-200 text-slate-700 shadow-sm'
+                                    : 'text-slate-400 hover:bg-slate-100'
                                     }`}
                             >
                                 Pendente
@@ -72,8 +90,8 @@ const OrderList = () => {
                             <button
                                 onClick={() => updateOrderStatus(order.id, 'preparando')}
                                 className={`flex items-center gap-1 px-3 py-1 rounded-md text-xs font-bold transition-all ${order.status === 'preparando'
-                                        ? 'bg-amber-100 text-amber-700 shadow-sm'
-                                        : 'text-slate-400 hover:bg-amber-50 hover:text-amber-600'
+                                    ? 'bg-amber-100 text-amber-700 shadow-sm'
+                                    : 'text-slate-400 hover:bg-amber-50 hover:text-amber-600'
                                     }`}
                             >
                                 <ChefHat size={12} /> Preparando
@@ -82,8 +100,8 @@ const OrderList = () => {
                             <button
                                 onClick={() => updateOrderStatus(order.id, 'concluido')}
                                 className={`flex items-center gap-1 px-3 py-1 rounded-md text-xs font-bold transition-all ${order.status === 'concluido'
-                                        ? 'bg-green-100 text-green-700 shadow-sm'
-                                        : 'text-slate-400 hover:bg-green-50 hover:text-green-600'
+                                    ? 'bg-green-100 text-green-700 shadow-sm'
+                                    : 'text-slate-400 hover:bg-green-50 hover:text-green-600'
                                     }`}
                             >
                                 <CheckCircle2 size={12} /> Concluído
@@ -103,7 +121,7 @@ const OrderList = () => {
                                         </div>
                                         <div>
                                             <p className="font-bold text-slate-700">{itemObj.item.name}</p>
-                                            <p className="text-xs text-slate-500">{new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(itemObj.item.preco)} un.</p>
+                                            <p className="text-xs text-slate-500">{formatCurrency(itemObj.item.preco)} un.</p>
                                         </div>
                                     </div>
                                     <div className="flex items-center gap-2">
@@ -111,7 +129,7 @@ const OrderList = () => {
                                             {itemObj.quantidade}x
                                         </span>
                                         <span className="font-bold text-slate-800 min-w-[80px] text-right">
-                                            {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(itemObj.item.preco * itemObj.quantidade)}
+                                            {formatCurrency(itemObj.item.preco * itemObj.quantidade)}
                                         </span>
                                     </div>
                                 </div>
@@ -120,6 +138,32 @@ const OrderList = () => {
                     </div>
                 ))}
             </div>
+
+            <Modal
+                isOpen={!!orderToDelete}
+                onClose={() => setOrderToDelete(null)}
+                title="Confirmar Exclusão"
+                footer={
+                    <>
+                        <button
+                            onClick={() => setOrderToDelete(null)}
+                            className="px-4 py-2 text-slate-600 hover:bg-slate-100 rounded-lg font-medium transition-colors"
+                        >
+                            Cancelar
+                        </button>
+                        <button
+                            onClick={confirmDelete}
+                            className="px-4 py-2 bg-red-600 text-white rounded-lg font-medium hover:bg-red-700 transition-colors"
+                        >
+                            Excluir Pedido
+                        </button>
+                    </>
+                }
+            >
+                <p className="text-slate-600">
+                    Tem certeza que deseja excluir o pedido <strong>#{orderToDelete}</strong>? Esta ação não pode ser desfeita.
+                </p>
+            </Modal>
         </div>
     );
 };

@@ -1,9 +1,11 @@
 import React, { createContext, useState, useContext, useEffect } from "react";
+import { useNotification } from "./NotificationContext";
 
 const ProductContext = createContext();
 
 export const ProductProvider = ({ children }) => {
     const [products, setProducts] = useState([]);
+    const { notify } = useNotification();
 
     const fetchProducts = async () => {
         try {
@@ -30,23 +32,91 @@ export const ProductProvider = ({ children }) => {
             });
             if (response.ok) {
                 fetchProducts(); // Recarrega a lista
+                notify("Produto adicionado com sucesso!", "success");
+            } else {
+                notify("Erro ao adicionar produto.", "error");
             }
         } catch (error) {
             console.error("Erro ao adicionar produto:", error);
+            notify("Erro de conexão ao adicionar produto.", "error");
         }
     };
 
     const removeProduct = async (id) => {
+        console.log("Tentando remover produto com ID:", id);
         try {
             const response = await fetch(`${import.meta.env.VITE_API_URL}/item/${id}`, {
                 method: "DELETE",
             });
+            console.log("Resposta da remoção:", response.status);
             if (response.ok) {
                 setProducts(prev => prev.filter(p => p.id !== id));
+                notify("Produto removido com sucesso!", "success");
+            } else {
+                console.error("Falha ao remover produto. Status:", response.status);
+                if (response.status === 500) {
+                    notify("Não é possível remover este item pois ele faz parte de um pedido.", "error");
+                } else {
+                    notify("Erro ao remover item. Tente novamente.", "error");
+                }
             }
         } catch (error) {
             console.error("Erro ao remover produto:", error);
+            notify("Erro de conexão ao remover item.", "error");
         }
+    };
+
+    const updateProduct = async (product) => {
+        try {
+            const response = await fetch(`${import.meta.env.VITE_API_URL}/item/${product.id}`, {
+                method: "PUT",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(product),
+            });
+
+            if (response.ok) {
+                fetchProducts();
+                notify("Produto atualizado com sucesso!", "success");
+                return true;
+            } else {
+                notify("Erro ao atualizar produto.", "error");
+                return false;
+            }
+        } catch (error) {
+            console.error("Erro ao atualizar produto:", error);
+            notify("Erro de conexão ao atualizar produto.", "error");
+            return false;
+        }
+    };
+
+    const removeOrder = async (id) => {
+        console.log("Tentando remover pedido com ID:", id);
+        try {
+            const response = await fetch(`${import.meta.env.VITE_API_URL}/pedidos?id=${id}`, {
+                method: "DELETE",
+            });
+
+            if (response.ok) {
+                setOrders(prev => prev.filter(o => o.id !== id));
+                notify("Pedido removido com sucesso!", "success");
+            } else {
+                console.error("Falha ao remover pedido. Status:", response.status);
+                notify("Erro ao remover pedido.", "error");
+            }
+        } catch (error) {
+            console.error("Erro ao remover pedido:", error);
+            notify("Erro de conexão ao remover pedido.", "error");
+        }
+    };
+
+    const updateOrderStatus = (orderId, newStatus) => {
+        setOrders(prevOrders =>
+            prevOrders.map(order =>
+                order.id === orderId ? { ...order, status: newStatus } : order
+            )
+        );
     };
 
     const uploadImage = async (file) => {
@@ -64,10 +134,12 @@ export const ProductProvider = ({ children }) => {
                 return text; // Assumes the backend returns the URL as plain text
             } else {
                 console.error("Erro no upload da imagem");
+                notify("Erro no upload da imagem.", "error");
                 return null;
             }
         } catch (error) {
             console.error("Erro ao fazer upload da imagem:", error);
+            notify("Erro de conexão no upload.", "error");
             return null;
         }
     };
@@ -78,18 +150,21 @@ export const ProductProvider = ({ children }) => {
         setCart(prev => {
             const existing = prev.find(item => item.product.id === product.id);
             if (existing) {
+                notify("Quantidade atualizada no carrinho!", "info");
                 return prev.map(item =>
                     item.product.id === product.id
                         ? { ...item, quantity: item.quantity + 1 }
                         : item
                 );
             }
+            notify("Produto adicionado ao carrinho!", "success");
             return [...prev, { product, quantity: 1 }];
         });
     };
 
     const removeFromCart = (productId) => {
         setCart(prev => prev.filter(item => item.product.id !== productId));
+        notify("Produto removido do carrinho.", "info");
     };
 
     const submitOrder = async (tableNumber) => {
@@ -103,6 +178,7 @@ export const ProductProvider = ({ children }) => {
         const mesaInt = parseInt(tableNumber);
         if (isNaN(mesaInt)) {
             console.error("Número da mesa inválido");
+            notify("Número da mesa inválido.", "error");
             return false;
         }
 
@@ -124,11 +200,14 @@ export const ProductProvider = ({ children }) => {
 
             if (response.ok) {
                 setCart([]); // Limpa o carrinho
+                notify("Pedido enviado com sucesso!", "success");
                 return true;
             }
+            notify("Erro ao enviar pedido.", "error");
             return false;
         } catch (error) {
             console.error("Erro ao enviar pedido:", error);
+            notify("Erro de conexão ao enviar pedido.", "error");
             return false;
         }
     };
@@ -157,18 +236,15 @@ export const ProductProvider = ({ children }) => {
 
     useEffect(() => {
         fetchOrders();
+        const interval = setInterval(() => {
+            fetchOrders();
+        }, 5000); // Poll every 5 seconds
+
+        return () => clearInterval(interval);
     }, []);
 
-    const updateOrderStatus = (orderId, newStatus) => {
-        setOrders(prevOrders =>
-            prevOrders.map(order =>
-                order.id === orderId ? { ...order, status: newStatus } : order
-            )
-        );
-    };
-
     return (
-        <ProductContext.Provider value={{ products, addProduct, removeProduct, uploadImage, cart, addToCart, removeFromCart, submitOrder, orders, fetchOrders, updateOrderStatus }}>
+        <ProductContext.Provider value={{ products, addProduct, removeProduct, updateProduct, uploadImage, cart, addToCart, removeFromCart, submitOrder, orders, fetchOrders, updateOrderStatus, removeOrder }}>
             {children}
         </ProductContext.Provider>
     );

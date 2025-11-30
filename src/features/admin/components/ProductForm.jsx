@@ -1,9 +1,9 @@
-import React, { useState } from "react";
-import { PlusCircle, CheckCircle2, ImageIcon } from "lucide-react";
+import React, { useState, useEffect } from "react";
+import { PlusCircle, CheckCircle2, ImageIcon, Edit } from "lucide-react";
 import { useProducts } from "../../../context/ProductContext";
 
-const ProductForm = ({ onSuccess }) => {
-    const { addProduct, uploadImage } = useProducts();
+const ProductForm = ({ onSuccess, initialData, onClearEdit }) => {
+    const { addProduct, updateProduct, uploadImage } = useProducts();
     const [nome, setNome] = useState("");
     const [descricao, setDescricao] = useState("");
     const [preco, setPreco] = useState("");
@@ -11,6 +11,33 @@ const ProductForm = ({ onSuccess }) => {
     const [categoria, setCategoria] = useState("Pratos Principais");
     const [sucesso, setSucesso] = useState(false);
     const [uploading, setUploading] = useState(false);
+
+    useEffect(() => {
+        if (initialData) {
+            setNome(initialData.name);
+            setDescricao(initialData.descricao);
+            setPreco(initialData.preco.toString().replace('.', ','));
+
+            // Reverse map category
+            const reverseCategoryMap = {
+                "PRATOS_PRINCIPAIS": "Pratos Principais",
+                "BEBIDAS": "Bebidas",
+                "SOBREMESAS": "Sobremesas"
+            };
+            setCategoria(reverseCategoryMap[initialData.categoria] || "Pratos Principais");
+            setImageUrl(initialData.imageUrl);
+        } else {
+            resetForm();
+        }
+    }, [initialData]);
+
+    const resetForm = () => {
+        setNome("");
+        setDescricao("");
+        setPreco("");
+        setImageUrl("");
+        setCategoria("Pratos Principais");
+    };
 
     const handleImageUpload = async (e) => {
         const file = e.target.files[0];
@@ -24,7 +51,7 @@ const ProductForm = ({ onSuccess }) => {
         setUploading(false);
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
         if (!nome) return;
 
@@ -35,7 +62,7 @@ const ProductForm = ({ onSuccess }) => {
             "Sobremesas": "SOBREMESAS"
         };
 
-        const novoPrato = {
+        const pratoDados = {
             name: nome,
             descricao: descricao || "Sem descrição",
             preco: parseFloat(preco.replace(',', '.')) || 0,
@@ -43,26 +70,37 @@ const ProductForm = ({ onSuccess }) => {
             imageUrl: imageUrl
         };
 
-        addProduct(novoPrato);
+        let result;
+        if (initialData) {
+            result = await updateProduct({ ...pratoDados, id: initialData.id });
+        } else {
+            result = await addProduct(pratoDados);
+        }
 
-        setSucesso(true);
-        setNome("");
-        setDescricao("");
-        setPreco("");
-        setImageUrl("");
-        if (onSuccess) onSuccess();
-        setTimeout(() => setSucesso(false), 3000);
+        if (result !== false) { // addProduct might return undefined if void, updateProduct returns boolean
+            setSucesso(true);
+            if (!initialData) resetForm();
+            if (onSuccess) onSuccess();
+            setTimeout(() => setSucesso(false), 3000);
+        }
+    };
+
+    const handleCancel = () => {
+        if (onClearEdit) onClearEdit();
+        resetForm();
+        if (onSuccess) onSuccess(); // Navigate back
     };
 
     return (
         <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 max-w-2xl mx-auto animate-in slide-in-from-right-4 duration-500">
             <h2 className="text-xl font-bold text-slate-800 mb-6 flex items-center gap-2">
-                <PlusCircle className="text-red-600" /> Adicionar Novo Prato
+                {initialData ? <Edit className="text-blue-600" /> : <PlusCircle className="text-red-600" />}
+                {initialData ? "Editar Prato" : "Adicionar Novo Prato"}
             </h2>
 
             {sucesso && (
                 <div className="mb-6 bg-green-50 text-green-700 p-4 rounded-xl flex items-center gap-2 border border-green-100 animate-in fade-in">
-                    <CheckCircle2 size={20} /> Prato adicionado com sucesso ao cardápio!
+                    <CheckCircle2 size={20} /> {initialData ? "Prato atualizado com sucesso!" : "Prato adicionado com sucesso!"}
                 </div>
             )}
 
@@ -145,11 +183,15 @@ const ProductForm = ({ onSuccess }) => {
                 </div>
 
                 <div className="pt-4 border-t border-slate-100 flex justify-end gap-3">
-                    <button type="button" className="px-6 py-2 text-slate-600 font-medium hover:bg-slate-50 rounded-lg transition-colors">
+                    <button
+                        type="button"
+                        onClick={handleCancel}
+                        className="px-6 py-2 text-slate-600 font-medium hover:bg-slate-50 rounded-lg transition-colors"
+                    >
                         Cancelar
                     </button>
-                    <button type="submit" className="px-8 py-3 bg-red-600 text-white font-bold rounded-xl hover:bg-red-700 shadow-lg shadow-red-200 transition-all transform hover:-translate-y-0.5 active:translate-y-0">
-                        Salvar Prato
+                    <button type="submit" className={`px-8 py-3 ${initialData ? 'bg-blue-600 hover:bg-blue-700 shadow-blue-200' : 'bg-red-600 hover:bg-red-700 shadow-red-200'} text-white font-bold rounded-xl shadow-lg transition-all transform hover:-translate-y-0.5 active:translate-y-0`}>
+                        {initialData ? "Salvar Alterações" : "Salvar Prato"}
                     </button>
                 </div>
             </form>
