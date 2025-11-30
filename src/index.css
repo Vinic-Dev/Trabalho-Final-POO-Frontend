@@ -2,8 +2,8 @@
 @tailwind components;
 @tailwind utilities;
 
-@media (max-width: 768px) {
-    body {
-        zoom: 3.0;
+@media (max-width: 1024px) {
+    html {
+        font-size: 250%;
     }
 }
