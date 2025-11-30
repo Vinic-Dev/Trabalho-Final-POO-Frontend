@@ -215,6 +215,27 @@ export const ProductProvider = ({ children }) => {
         }
     };
 
+    const deleteCategory = async (id) => {
+        try {
+            const response = await fetch(`${import.meta.env.VITE_API_URL}/categorias/${id}`, {
+                method: "DELETE",
+            });
+
+            if (response.ok) {
+                fetchCategories();
+                notify("Categoria removida com sucesso!", "success");
+                return true;
+            } else {
+                notify("Erro ao remover categoria.", "error");
+                return false;
+            }
+        } catch (error) {
+            console.error("Erro ao remover categoria:", error);
+            notify("Erro de conexão ao remover categoria.", "error");
+            return false;
+        }
+    };
+
     const addToCart = (product) => {
         setCart(prev => {
             const existing = prev.find(item => item.product.id === product.id);
@@ -282,7 +303,7 @@ export const ProductProvider = ({ children }) => {
     };
 
     return (
-        <ProductContext.Provider value={{ products, categories, addProduct, removeProduct, updateProduct, uploadImage, createCategory, cart, addToCart, removeFromCart, submitOrder, orders, fetchOrders, updateOrderStatus, removeOrder }}>
+        <ProductContext.Provider value={{ products, categories, addProduct, removeProduct, updateProduct, uploadImage, createCategory, deleteCategory, cart, addToCart, removeFromCart, submitOrder, orders, fetchOrders, updateOrderStatus, removeOrder }}>
             {children}
         </ProductContext.Provider>
     );

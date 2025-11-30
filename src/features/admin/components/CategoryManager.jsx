@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
 import { useProducts } from '../../../context/ProductContext';
-import { Plus, Tag } from 'lucide-react';
+import { Plus, Tag, Trash2 } from 'lucide-react';
+import Modal from '../../../components/ui/Modal';
 
 const CategoryManager = () => {
-    const { categories, createCategory } = useProducts();
+    const { categories, createCategory, deleteCategory } = useProducts();
     const [newCategory, setNewCategory] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [categoryToDelete, setCategoryToDelete] = useState(null);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -54,7 +56,16 @@ const CategoryManager = () => {
                             className="bg-slate-50 p-4 rounded-xl border border-slate-100 flex items-center justify-between group hover:border-purple-200 transition-colors"
                         >
                             <span className="font-medium text-slate-700">{category.nome}</span>
-                            {/* Future: Add delete/edit buttons here */}
+                            <button
+                                onClick={() => {
+                                    console.log("Deleting category:", category);
+                                    setCategoryToDelete(category);
+                                }}
+                                className="text-slate-400 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all p-2 hover:bg-red-50 rounded-lg"
+                                title="Remover categoria"
+                            >
+                                <Trash2 size={18} />
+                            </button>
                         </div>
                     ))}
                     {categories.length === 0 && (
@@ -64,6 +75,40 @@ const CategoryManager = () => {
                     )}
                 </div>
             </div>
+            <Modal
+                isOpen={!!categoryToDelete}
+                onClose={() => setCategoryToDelete(null)}
+                title="Confirmar Exclusão"
+                footer={
+                    <>
+                        <button
+                            onClick={() => setCategoryToDelete(null)}
+                            className="px-4 py-2 text-slate-600 hover:bg-slate-100 rounded-lg font-medium transition-colors"
+                        >
+                            Cancelar
+                        </button>
+                        <button
+                            onClick={() => {
+                                if (categoryToDelete) {
+                                    deleteCategory(categoryToDelete.id);
+                                    setCategoryToDelete(null);
+                                }
+                            }}
+                            className="px-4 py-2 bg-red-600 text-white rounded-lg font-medium hover:bg-red-700 transition-colors"
+                        >
+                            Excluir Categoria
+                        </button>
+                    </>
+                }
+            >
+                <p className="text-slate-600">
+                    Tem certeza que deseja excluir a categoria <strong>{categoryToDelete?.nome}</strong>?
+                    <br />
+                    <span className="text-sm text-red-500 mt-2 block">
+                        Isso pode afetar os produtos associados a esta categoria.
+                    </span>
+                </p>
+            </Modal>
         </div>
     );
 };

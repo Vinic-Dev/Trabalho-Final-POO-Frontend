@@ -3,12 +3,12 @@ import { PlusCircle, CheckCircle2, ImageIcon, Edit } from "lucide-react";
 import { useProducts } from "../../../context/ProductContext";
 
 const ProductForm = ({ onSuccess, initialData, onClearEdit }) => {
-    const { addProduct, updateProduct, uploadImage } = useProducts();
+    const { addProduct, updateProduct, uploadImage, categories } = useProducts();
     const [nome, setNome] = useState("");
     const [descricao, setDescricao] = useState("");
     const [preco, setPreco] = useState("");
     const [imageUrl, setImageUrl] = useState("");
-    const [categoria, setCategoria] = useState("Pratos Principais");
+    const [categoria, setCategoria] = useState("");
     const [sucesso, setSucesso] = useState(false);
     const [uploading, setUploading] = useState(false);
 
@@ -18,25 +18,23 @@ const ProductForm = ({ onSuccess, initialData, onClearEdit }) => {
             setDescricao(initialData.descricao);
             setPreco(initialData.preco.toString().replace('.', ','));
 
-            // Reverse map category
-            const reverseCategoryMap = {
-                "PRATOS_PRINCIPAIS": "Pratos Principais",
-                "BEBIDAS": "Bebidas",
-                "SOBREMESAS": "Sobremesas"
-            };
-            setCategoria(reverseCategoryMap[initialData.categoria] || "Pratos Principais");
+            // Handle category: check if it's an object or string
+            const cat = initialData.categoria;
+            const catName = typeof cat === 'object' && cat !== null ? cat.nome : cat;
+            setCategoria(catName || (categories.length > 0 ? categories[0].nome : ""));
+
             setImageUrl(initialData.imageUrl);
         } else {
             resetForm();
         }
-    }, [initialData]);
+    }, [initialData, categories]);
 
     const resetForm = () => {
         setNome("");
         setDescricao("");
         setPreco("");
         setImageUrl("");
-        setCategoria("Pratos Principais");
+        setCategoria(categories.length > 0 ? categories[0].nome : "");
     };
 
     const handleImageUpload = async (e) => {
@@ -55,18 +53,17 @@ const ProductForm = ({ onSuccess, initialData, onClearEdit }) => {
         e.preventDefault();
         if (!nome) return;
 
-        // Map categories to backend Enums
-        const categoryMap = {
-            "Pratos Principais": "PRATOS_PRINCIPAIS",
-            "Bebidas": "BEBIDAS",
-            "Sobremesas": "SOBREMESAS"
-        };
+        // Find the selected category object
+        const selectedCategory = categories.find(c => c.nome === categoria);
+
+        // If no category is found (shouldn't happen if select is populated), default to first or null
+        const categoryToSend = selectedCategory || (categories.length > 0 ? categories[0] : null);
 
         const pratoDados = {
             name: nome,
             descricao: descricao || "Sem descrição",
             preco: parseFloat(preco.replace(',', '.')) || 0,
-            categoria: categoryMap[categoria] || "PRATOS_PRINCIPAIS",
+            categoria: categoryToSend, // Send the full category object
             imageUrl: imageUrl
         };
 
@@ -77,7 +74,7 @@ const ProductForm = ({ onSuccess, initialData, onClearEdit }) => {
             result = await addProduct(pratoDados);
         }
 
-        if (result !== false) { // addProduct might return undefined if void, updateProduct returns boolean
+        if (result !== false) {
             setSucesso(true);
             if (!initialData) resetForm();
             if (onSuccess) onSuccess();
@@ -149,9 +146,12 @@ const ProductForm = ({ onSuccess, initialData, onClearEdit }) => {
                             onChange={(e) => setCategoria(e.target.value)}
                             className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-red-100 focus:border-red-500 outline-none bg-white"
                         >
-                            <option>Pratos Principais</option>
-                            <option>Bebidas</option>
-                            <option>Sobremesas</option>
+                            <option value="" disabled>Selecione uma categoria</option>
+                            {categories.map((cat, index) => (
+                                <option key={cat.id || index} value={cat.nome}>
+                                    {cat.nome}
+                                </option>
+                            ))}
                         </select>
                     </div>
 
