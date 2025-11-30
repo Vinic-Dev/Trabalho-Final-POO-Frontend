@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Utensils, List, DollarSign } from "lucide-react";
+import { Utensils, List, DollarSign, UtensilsCrossed } from "lucide-react";
 import useAuth from "../hooks/useAuth";
 import { useProducts } from "../context/ProductContext";
 import ProductForm from "../features/admin/components/ProductForm";
@@ -8,8 +8,8 @@ import ProductList from "../features/admin/components/ProductList";
 import OrderList from "../features/admin/components/OrderList";
 import AdminSidebar from "../features/admin/components/AdminSidebar";
 import StatsCard from "../features/admin/components/StatsCard";
+import CategoryManager from "../features/admin/components/CategoryManager";
 import { formatCurrency } from "../utils/formatters";
-
 import NotificationComponent from "../components/NotificationComponent";
 
 const AdminDashboard = () => {
@@ -18,20 +18,23 @@ const AdminDashboard = () => {
     const { products, orders } = useProducts();
     const [paginaAtiva, setPaginaAtiva] = useState("dashboard");
     const [editingProduct, setEditingProduct] = useState(null);
+    const [activeTab, setActiveTab] = useState('products');
+    const [isEditing, setIsEditing] = useState(false);
 
     const handleLogout = () => {
         logout();
         navigate('/');
     };
 
-    const handleEdit = (product) => {
+    const handleEditProduct = (product) => {
         setEditingProduct(product);
-        setPaginaAtiva('novo-prato');
+        setIsEditing(true);
+        setActiveTab('products');
     };
 
     const handleClearEdit = () => {
         setEditingProduct(null);
-        setPaginaAtiva('cardapio');
+        setIsEditing(false);
     };
 
     const calculateTotalSales = () => {
@@ -51,7 +54,13 @@ const AdminDashboard = () => {
                 activePage={paginaAtiva}
                 onNavigate={(page) => {
                     setPaginaAtiva(page);
-                    if (page !== 'novo-prato') setEditingProduct(null);
+                    if (page !== 'novo-prato' && page !== 'cardapio') {
+                        setEditingProduct(null);
+                        setIsEditing(false);
+                    }
+                    if (page === 'cardapio') {
+                        setActiveTab('products');
+                    }
                 }}
                 onLogout={handleLogout}
             />
@@ -61,7 +70,7 @@ const AdminDashboard = () => {
                 <header className="flex justify-between items-center mb-8">
                     <div>
                         <h1 className="text-2xl font-bold text-slate-800">
-                            {paginaAtiva === 'dashboard' ? 'Painel de Controle' : paginaAtiva === 'novo-prato' ? (editingProduct ? 'Editar Prato' : 'Gerenciar Pratos') : 'Lista do Cardápio'}
+                            {paginaAtiva === 'dashboard' ? 'Painel de Controle' : paginaAtiva === 'cardapio' ? (activeTab === 'products' ? (isEditing ? 'Editar Prato' : 'Gerenciar Cardápio') : 'Gerenciar Categorias') : 'Gerenciar Pratos'}
                         </h1>
                         <p className="text-slate-500 text-sm">Bem-vindo de volta, Gerente.</p>
                     </div>
@@ -101,6 +110,7 @@ const AdminDashboard = () => {
                     </div>
                 )}
 
+                {/* The 'novo-prato' page is now integrated into 'cardapio' as a tab, but keeping it for now if it's a separate flow */}
                 {paginaAtiva === 'novo-prato' && (
                     <ProductForm
                         onSuccess={handleClearEdit}
@@ -110,7 +120,46 @@ const AdminDashboard = () => {
                 )}
 
                 {paginaAtiva === 'cardapio' && (
-                    <ProductList onEdit={handleEdit} />
+                    <div className="space-y-6">
+                        <div className="flex gap-4 mb-8">
+                            <button
+                                onClick={() => { setActiveTab('products'); setIsEditing(false); setEditingProduct(null); }}
+                                className={`flex items-center gap-2 px-6 py-3 rounded-xl font-medium transition-all ${activeTab === 'products'
+                                    ? 'bg-red-600 text-white shadow-lg shadow-red-200'
+                                    : 'bg-white text-slate-600 hover:bg-slate-50'
+                                    }`}
+                            >
+                                <UtensilsCrossed size={20} />
+                                Gerenciar Cardápio
+                            </button>
+                            <button
+                                onClick={() => setActiveTab('categories')}
+                                className={`flex items-center gap-2 px-6 py-3 rounded-xl font-medium transition-all ${activeTab === 'categories'
+                                    ? 'bg-purple-600 text-white shadow-lg shadow-purple-200'
+                                    : 'bg-white text-slate-600 hover:bg-slate-50'
+                                    }`}
+                            >
+                                <List size={20} />
+                                Categorias
+                            </button>
+                        </div>
+
+                        <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+                            {activeTab === 'products' ? (
+                                isEditing ? (
+                                    <ProductForm
+                                        onSuccess={() => setIsEditing(false)}
+                                        initialData={editingProduct}
+                                        onClearEdit={() => { setEditingProduct(null); setIsEditing(false); }}
+                                    />
+                                ) : (
+                                    <ProductList onEdit={handleEditProduct} />
+                                )
+                            ) : (
+                                <CategoryManager />
+                            )}
+                        </div>
+                    </div>
                 )}
             </main>
         </div>

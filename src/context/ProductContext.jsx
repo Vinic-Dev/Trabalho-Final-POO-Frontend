@@ -5,7 +5,10 @@ const ProductContext = createContext();
 
 export const ProductProvider = ({ children }) => {
     const [products, setProducts] = useState([]);
+    const [categories, setCategories] = useState([]);
     const { notify } = useNotification();
+    const [cart, setCart] = useState([]);
+    const [orders, setOrders] = useState([]);
 
     const fetchProducts = async () => {
         try {
@@ -17,8 +20,42 @@ export const ProductProvider = ({ children }) => {
         }
     };
 
+    const fetchCategories = async () => {
+        try {
+            const response = await fetch(`${import.meta.env.VITE_API_URL}/categorias`);
+            if (response.ok) {
+                const data = await response.json();
+                setCategories(data);
+            }
+        } catch (error) {
+            console.error("Erro ao buscar categorias:", error);
+        }
+    };
+
+    const fetchOrders = async () => {
+        try {
+            const url = `${import.meta.env.VITE_API_URL}/pedidos`;
+            console.log("Fetching orders from:", url);
+            const response = await fetch(url);
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            const data = await response.json();
+            // Adiciona status localmente se não vier do backend
+            const ordersWithStatus = data.map(order => ({
+                ...order,
+                status: order.status || 'pendente'
+            }));
+            setOrders(ordersWithStatus);
+        } catch (error) {
+            console.error("Erro ao buscar pedidos:", error);
+        }
+    };
+
     useEffect(() => {
         fetchProducts();
+        fetchCategories();
+        fetchOrders();
     }, []);
 
     const addProduct = async (product) => {
@@ -94,7 +131,7 @@ export const ProductProvider = ({ children }) => {
     const removeOrder = async (id) => {
         console.log("Tentando remover pedido com ID:", id);
         try {
-            const response = await fetch(`${import.meta.env.VITE_API_URL}/pedidos?id=${id}`, {
+            const response = await fetch(`${import.meta.env.VITE_API_URL}/pedidos/${id}`, {
                 method: "DELETE",
             });
 
@@ -103,7 +140,11 @@ export const ProductProvider = ({ children }) => {
                 notify("Pedido removido com sucesso!", "success");
             } else {
                 console.error("Falha ao remover pedido. Status:", response.status);
-                notify("Erro ao remover pedido.", "error");
+                if (response.status === 500) {
+                    notify("Erro ao remover pedido. Verifique se há restrições no banco de dados.", "error");
+                } else {
+                    notify("Erro ao remover pedido.", "error");
+                }
             }
         } catch (error) {
             console.error("Erro ao remover pedido:", error);
@@ -144,7 +185,33 @@ export const ProductProvider = ({ children }) => {
         }
     };
 
-    const [cart, setCart] = useState([]);
+    const createCategory = async (categoryName) => {
+        try {
+            // API expects an array of objects
+            const payload = [{ nome: categoryName }];
+
+            const response = await fetch(`${import.meta.env.VITE_API_URL}/categorias`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(payload),
+            });
+
+            if (response.ok) {
+                fetchCategories();
+                notify("Categoria criada com sucesso!", "success");
+                return true;
+            } else {
+                notify("Erro ao criar categoria.", "error");
+                return false;
+            }
+        } catch (error) {
+            console.error("Erro ao criar categoria:", error);
+            notify("Erro de conexão ao criar categoria.", "error");
+            return false;
+        }
+    };
 
     const addToCart = (product) => {
         setCart(prev => {
@@ -212,34 +279,8 @@ export const ProductProvider = ({ children }) => {
         }
     };
 
-    const [orders, setOrders] = useState([]);
-
-    const fetchOrders = async () => {
-        try {
-            const url = `${import.meta.env.VITE_API_URL}/pedidos`;
-            console.log("Fetching orders from:", url);
-            const response = await fetch(url);
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-            const data = await response.json();
-            // Adiciona status localmente se não vier do backend
-            const ordersWithStatus = data.map(order => ({
-                ...order,
-                status: order.status || 'pendente'
-            }));
-            setOrders(ordersWithStatus);
-        } catch (error) {
-            console.error("Erro ao buscar pedidos:", error);
-        }
-    };
-
-    useEffect(() => {
-        fetchOrders();
-    }, []);
-
     return (
-        <ProductContext.Provider value={{ products, addProduct, removeProduct, updateProduct, uploadImage, cart, addToCart, removeFromCart, submitOrder, orders, fetchOrders, updateOrderStatus, removeOrder }}>
+        <ProductContext.Provider value={{ products, categories, addProduct, removeProduct, updateProduct, uploadImage, createCategory, cart, addToCart, removeFromCart, submitOrder, orders, fetchOrders, updateOrderStatus, removeOrder }}>
             {children}
         </ProductContext.Provider>
     );
