@@ -24,17 +24,17 @@ export default function Corpo({ products, addToCart }) {
                     </div>
 
                     {/* Horizontal Cards Grid */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                         {items.map(card => (
                             <button
                                 key={card.id}
                                 onClick={() => addToCart(card)}
-                                className="group relative bg-white rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 flex overflow-hidden border border-gray-100 h-40 w-full text-left"
+                                className="group relative bg-white rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col md:flex-row overflow-hidden border border-gray-100 h-auto md:h-40 w-full text-left"
                             >
-                                <div className="absolute left-0 top-0 h-full w-1 bg-gradient-to-b from-red-400 to-amber-400 group-hover:w-2 transition-all z-10"></div>
+                                <div className="absolute left-0 top-0 h-1 md:h-full w-full md:w-1 bg-gradient-to-r md:bg-gradient-to-b from-red-400 to-amber-400 group-hover:h-2 md:group-hover:h-full md:group-hover:w-2 transition-all z-10"></div>
 
-                                {/* Image Section - Left */}
-                                <div className="w-40 h-full relative shrink-0">
+                                {/* Image Section */}
+                                <div className="w-full md:w-40 h-64 md:h-full relative shrink-0">
                                     {card.imageUrl ? (
                                         <img
                                             src={card.imageUrl}
@@ -48,7 +48,7 @@ export default function Corpo({ products, addToCart }) {
                                     )}
                                 </div>
 
-                                {/* Content Section - Right */}
+                                {/* Content Section */}
                                 <div className="flex-1 p-4 flex flex-col justify-between">
                                     <div>
                                         <h3 className="font-bold text-gray-800 text-lg group-hover:text-red-600 transition-colors line-clamp-1 mb-1">
@@ -59,7 +59,7 @@ export default function Corpo({ products, addToCart }) {
                                         </p>
                                     </div>
 
-                                    <div className="flex items-center justify-between mt-2">
+                                    <div className="flex items-center justify-between mt-4 md:mt-2">
                                         {card.preco && (
                                             <span className="text-green-600 font-bold text-lg">
                                                 {formatCurrency(card.preco)}

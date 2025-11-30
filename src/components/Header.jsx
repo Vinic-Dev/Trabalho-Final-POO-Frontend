@@ -20,7 +20,7 @@ const Header = () => {
             </div>
 
             <div className="flex justify-center">
-                <img src={logoImagem} alt="Logo" className="h-20 object-contain" />
+                <img src={logoImagem} alt="Logo" className="h-40 md:h-20 object-contain transition-all duration-300" />
             </div>
         </div>
     );
