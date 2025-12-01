@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { ArrowLeft, Lock } from "lucide-react";
 import useAuth from "../hooks/useAuth";
 
-const LoginPage = () => {
+const PaginaLogin = () => {
     const navigate = useNavigate();
     const { login } = useAuth();
     const [user, setUser] = useState("");
@@ -70,4 +70,4 @@ const LoginPage = () => {
     );
 };
 
-export default LoginPage;
+export default PaginaLogin;

@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { PlusCircle, CheckCircle2, ImageIcon, Edit } from "lucide-react";
-import { useProducts } from "../../../context/ProductContext";
+import { useProdutos } from "../../../context/ContextoProduto";
 
-const ProductForm = ({ onSuccess, initialData, onClearEdit }) => {
-    const { addProduct, updateProduct, uploadImage, categories } = useProducts();
+const FormularioProduto = ({ onSuccess, initialData, onClearEdit }) => {
+    const { adicionarProduto, atualizarProduto, carregarImagem, categorias } = useProdutos();
     const [nome, setNome] = useState("");
     const [descricao, setDescricao] = useState("");
     const [preco, setPreco] = useState("");
@@ -21,20 +21,20 @@ const ProductForm = ({ onSuccess, initialData, onClearEdit }) => {
             // Handle category: check if it's an object or string
             const cat = initialData.categoria;
             const catName = typeof cat === 'object' && cat !== null ? cat.nome : cat;
-            setCategoria(catName || (categories.length > 0 ? categories[0].nome : ""));
+            setCategoria(catName || (categorias.length > 0 ? categorias[0].nome : ""));
 
             setImageUrl(initialData.imageUrl);
         } else {
             resetForm();
         }
-    }, [initialData, categories]);
+    }, [initialData, categorias]);
 
     const resetForm = () => {
         setNome("");
         setDescricao("");
         setPreco("");
         setImageUrl("");
-        setCategoria(categories.length > 0 ? categories[0].nome : "");
+        setCategoria(categorias.length > 0 ? categorias[0].nome : "");
     };
 
     const handleImageUpload = async (e) => {
@@ -42,7 +42,7 @@ const ProductForm = ({ onSuccess, initialData, onClearEdit }) => {
         if (!file) return;
 
         setUploading(true);
-        const url = await uploadImage(file);
+        const url = await carregarImagem(file);
         if (url) {
             setImageUrl(url);
         }
@@ -54,10 +54,10 @@ const ProductForm = ({ onSuccess, initialData, onClearEdit }) => {
         if (!nome) return;
 
         // Find the selected category object
-        const selectedCategory = categories.find(c => c.nome === categoria);
+        const selectedCategory = categorias.find(c => c.nome === categoria);
 
         // If no category is found (shouldn't happen if select is populated), default to first or null
-        const categoryToSend = selectedCategory || (categories.length > 0 ? categories[0] : null);
+        const categoryToSend = selectedCategory || (categorias.length > 0 ? categorias[0] : null);
 
         const pratoDados = {
             name: nome,
@@ -69,9 +69,9 @@ const ProductForm = ({ onSuccess, initialData, onClearEdit }) => {
 
         let result;
         if (initialData) {
-            result = await updateProduct({ ...pratoDados, id: initialData.id });
+            result = await atualizarProduto({ ...pratoDados, id: initialData.id });
         } else {
-            result = await addProduct(pratoDados);
+            result = await adicionarProduto(pratoDados);
         }
 
         if (result !== false) {
@@ -147,7 +147,7 @@ const ProductForm = ({ onSuccess, initialData, onClearEdit }) => {
                             className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-red-100 focus:border-red-500 outline-none bg-white"
                         >
                             <option value="" disabled>Selecione uma categoria</option>
-                            {categories.map((cat, index) => (
+                            {categorias.map((cat, index) => (
                                 <option key={cat.id || index} value={cat.nome}>
                                     {cat.nome}
                                 </option>
@@ -199,4 +199,4 @@ const ProductForm = ({ onSuccess, initialData, onClearEdit }) => {
     );
 };
 
-export default ProductForm;
+export default FormularioProduto;

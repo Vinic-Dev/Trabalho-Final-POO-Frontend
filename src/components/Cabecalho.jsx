@@ -3,7 +3,7 @@ import { Lock } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import logoImagem from "../assets/logo.png";
 
-const Header = () => {
+const Cabecalho = () => {
     const navigate = useNavigate();
 
     return (
@@ -26,4 +26,4 @@ const Header = () => {
     );
 };
 
-export default Header;
+export default Cabecalho;

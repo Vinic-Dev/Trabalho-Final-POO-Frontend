@@ -1,10 +1,10 @@
 import React, { useState } from "react";
-import { useProducts } from "../context/ProductContext";
-import Header from "../components/Header";
+import { useProdutos } from "../context/ContextoProduto";
+import Cabecalho from "../components/Cabecalho";
 import Corpo from "../components/Corpo";
 
-const HomePage = () => {
-    const { products, addToCart, cart, removeFromCart, submitOrder } = useProducts();
+const PaginaInicial = () => {
+    const { produtos, adicionarAoCarrinho, carrinho, removerDoCarrinho, enviarPedido } = useProdutos();
     const [ativo, setAtivo] = useState('cardapio');
     const [mesa, setMesa] = useState("");
     const [sucessoPedido, setSucessoPedido] = useState(false);
@@ -18,7 +18,7 @@ const HomePage = () => {
             alert("Por favor, informe o número da mesa.");
             return;
         }
-        const success = await submitOrder(mesa);
+        const success = await enviarPedido(mesa);
         if (success) {
             setSucessoPedido(true);
             setTimeout(() => setSucessoPedido(false), 3000);
@@ -28,11 +28,11 @@ const HomePage = () => {
         }
     };
 
-    const total = cart.reduce((acc, item) => acc + (item.product.preco * item.quantity), 0);
+    const total = carrinho.reduce((acc, item) => acc + (item.product.preco * item.quantity), 0);
 
     return (
         <div className="min-h-screen bg-gray-100 pb-20 font-sans">
-            <Header />
+            <Cabecalho />
 
             {/* Navegador (Nave.jsx) */}
             <div className="flex justify-center w-full mb-8 mt-8">
@@ -59,9 +59,9 @@ const HomePage = () => {
                             <path d="M16 10a4 4 0 0 1-8 0"></path>
                         </svg>
                         Meu Pedido
-                        {cart.length > 0 && (
+                        {carrinho.length > 0 && (
                             <span className="ml-2 bg-red-600 text-white text-xs font-bold px-2 py-0.5 rounded-full">
-                                {cart.reduce((acc, item) => acc + item.quantity, 0)}
+                                {carrinho.reduce((acc, item) => acc + item.quantity, 0)}
                             </span>
                         )}
                     </button>
@@ -71,7 +71,7 @@ const HomePage = () => {
             {/* Conteúdo */}
             <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
                 {ativo === 'cardapio' ? (
-                    <Corpo products={products} addToCart={addToCart} />
+                    <Corpo produtos={produtos} adicionarAoCarrinho={adicionarAoCarrinho} />
                 ) : (
                     <div className="max-w-2xl mx-auto p-6">
                         {sucessoPedido && (
@@ -85,7 +85,7 @@ const HomePage = () => {
                                 <h2 className="text-xl font-bold text-gray-800">Seu Pedido</h2>
                             </div>
 
-                            {cart.length === 0 ? (
+                            {carrinho.length === 0 ? (
                                 <div className="p-12 text-center text-gray-400">
                                     <p>Seu carrinho está vazio.</p>
                                     <button onClick={() => setAtivo('cardapio')} className="mt-4 text-red-600 font-bold hover:underline">
@@ -94,7 +94,7 @@ const HomePage = () => {
                                 </div>
                             ) : (
                                 <div className="p-6 space-y-4">
-                                    {cart.map((item) => (
+                                    {carrinho.map((item) => (
                                         <div key={item.product.id} className="flex justify-between items-center border-b border-gray-50 pb-4">
                                             <div className="flex items-center gap-4">
                                                 <div className="w-12 h-12 bg-gray-100 rounded-lg overflow-hidden">
@@ -116,7 +116,7 @@ const HomePage = () => {
                                                     {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(item.product.preco * item.quantity)}
                                                 </span>
                                                 <button
-                                                    onClick={() => removeFromCart(item.product.id)}
+                                                    onClick={() => removerDoCarrinho(item.product.id)}
                                                     className="text-red-500 hover:bg-red-50 p-2 rounded-full transition-colors"
                                                 >
                                                     <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 6h18"></path><path d="M19 6v14c0 1.1-.9 2-2 2H7c-1.1 0-2-.9-2-2V6"></path><path d="M8 6V4c0-1.1.9-2 2-2h4c1.1 0 2 .9 2 2v2"></path></svg>
@@ -156,4 +156,4 @@ const HomePage = () => {
     );
 };
 
-export default HomePage;
+export default PaginaInicial;

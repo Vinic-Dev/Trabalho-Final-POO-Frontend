@@ -1,7 +1,7 @@
 import React from "react";
 import { Utensils, LogOut, LayoutDashboard, PlusCircle, List } from "lucide-react";
 
-const AdminSidebar = ({ activePage, onNavigate, onLogout }) => {
+const BarraLateralAdmin = ({ activePage, onNavigate, onLogout }) => {
     const MenuButton = ({ id, icon: Icon, label }) => (
         <button
             onClick={() => onNavigate(id)}
@@ -42,4 +42,4 @@ const AdminSidebar = ({ activePage, onNavigate, onLogout }) => {
     );
 };
 
-export default AdminSidebar;
+export default BarraLateralAdmin;

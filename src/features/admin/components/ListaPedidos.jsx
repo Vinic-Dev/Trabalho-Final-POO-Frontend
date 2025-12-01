@@ -1,26 +1,26 @@
 import React, { useState } from "react";
-import { useProducts } from "../../../context/ProductContext";
+import { useProdutos } from "../../../context/ContextoProduto";
 import { Clock, MapPin, CheckCircle2, ChefHat, Package, Trash2 } from "lucide-react";
 import { formatCurrency } from "../../../utils/formatters";
 import Modal from "../../../components/ui/Modal";
 
-const OrderList = () => {
-    const { orders, updateOrderStatus, removeOrder } = useProducts();
-    const [orderToDelete, setOrderToDelete] = useState(null);
+const ListaPedidos = () => {
+    const { pedidos, atualizarStatusPedido, removerPedido } = useProdutos();
+    const [pedidoParaDeletar, setPedidoParaDeletar] = useState(null);
 
-    const calculateTotal = (order) => {
-        if (order.precoTotal && order.precoTotal > 0) return order.precoTotal;
-        return order.itens.reduce((acc, itemObj) => acc + (itemObj.item.preco * itemObj.quantidade), 0);
+    const calcularTotal = (pedido) => {
+        if (pedido.precoTotal && pedido.precoTotal > 0) return pedido.precoTotal;
+        return pedido.itens.reduce((acc, itemObj) => acc + (itemObj.item.preco * itemObj.quantidade), 0);
     };
 
-    const confirmDelete = () => {
-        if (orderToDelete) {
-            removeOrder(orderToDelete);
-            setOrderToDelete(null);
+    const confirmarExclusao = () => {
+        if (pedidoParaDeletar) {
+            removerPedido(pedidoParaDeletar);
+            setPedidoParaDeletar(null);
         }
     };
 
-    if (!orders || orders.length === 0) {
+    if (!pedidos || pedidos.length === 0) {
         return (
             <div className="bg-white p-8 rounded-2xl shadow-sm border border-slate-100 text-center">
                 <div className="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-4 text-slate-400">
@@ -39,21 +39,21 @@ const OrderList = () => {
             </h2>
 
             <div className="grid gap-6">
-                {orders.map((order) => (
-                    <div key={order.id} className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 hover:shadow-md transition-all">
+                {pedidos.map((pedido) => (
+                    <div key={pedido.id} className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 hover:shadow-md transition-all">
                         <div className="flex flex-col md:flex-row justify-between md:items-center gap-4 mb-4 border-b border-slate-50 pb-4">
                             <div className="flex items-center gap-4">
                                 <div className="w-12 h-12 bg-red-50 rounded-xl flex items-center justify-center text-red-600 font-bold text-lg">
-                                    #{order.id}
+                                    #{pedido.id}
                                 </div>
                                 <div>
                                     <div className="flex items-center gap-2 text-slate-500 text-sm mb-1">
                                         <Clock size={14} />
-                                        <span>{order.data || "Data não informada"}</span>
+                                        <span>{pedido.data || "Data não informada"}</span>
                                     </div>
                                     <div className="flex items-center gap-2 font-bold text-slate-800">
                                         <MapPin size={16} className="text-red-500" />
-                                        <span>Mesa {order.mesa}</span>
+                                        <span>Mesa {pedido.mesa}</span>
                                     </div>
                                 </div>
                             </div>
@@ -61,11 +61,11 @@ const OrderList = () => {
                                 <div>
                                     <span className="block text-xs text-slate-500 uppercase font-bold tracking-wider">Total do Pedido</span>
                                     <span className="text-2xl font-bold text-green-600">
-                                        {formatCurrency(calculateTotal(order))}
+                                        {formatCurrency(calcularTotal(pedido))}
                                     </span>
                                 </div>
                                 <button
-                                    onClick={() => setOrderToDelete(order.id)}
+                                    onClick={() => setPedidoParaDeletar(pedido.id)}
                                     className="flex items-center gap-1 text-red-500 hover:text-red-700 hover:bg-red-50 px-2 py-1 rounded-lg transition-colors text-xs font-bold"
                                 >
                                     <Trash2 size={14} /> Excluir
@@ -78,8 +78,8 @@ const OrderList = () => {
                             <span className="text-sm font-bold text-slate-600 mr-2">Status:</span>
 
                             <button
-                                onClick={() => updateOrderStatus(order.id, 'pendente')}
-                                className={`px-3 py-1 rounded-md text-xs font-bold transition-all ${order.status === 'pendente'
+                                onClick={() => atualizarStatusPedido(pedido.id, 'pendente')}
+                                className={`px-3 py-1 rounded-md text-xs font-bold transition-all ${pedido.status === 'pendente'
                                     ? 'bg-slate-200 text-slate-700 shadow-sm'
                                     : 'text-slate-400 hover:bg-slate-100'
                                     }`}
@@ -88,8 +88,8 @@ const OrderList = () => {
                             </button>
 
                             <button
-                                onClick={() => updateOrderStatus(order.id, 'preparando')}
-                                className={`flex items-center gap-1 px-3 py-1 rounded-md text-xs font-bold transition-all ${order.status === 'preparando'
+                                onClick={() => atualizarStatusPedido(pedido.id, 'preparando')}
+                                className={`flex items-center gap-1 px-3 py-1 rounded-md text-xs font-bold transition-all ${pedido.status === 'preparando'
                                     ? 'bg-amber-100 text-amber-700 shadow-sm'
                                     : 'text-slate-400 hover:bg-amber-50 hover:text-amber-600'
                                     }`}
@@ -98,8 +98,8 @@ const OrderList = () => {
                             </button>
 
                             <button
-                                onClick={() => updateOrderStatus(order.id, 'concluido')}
-                                className={`flex items-center gap-1 px-3 py-1 rounded-md text-xs font-bold transition-all ${order.status === 'concluido'
+                                onClick={() => atualizarStatusPedido(pedido.id, 'concluido')}
+                                className={`flex items-center gap-1 px-3 py-1 rounded-md text-xs font-bold transition-all ${pedido.status === 'concluido'
                                     ? 'bg-green-100 text-green-700 shadow-sm'
                                     : 'text-slate-400 hover:bg-green-50 hover:text-green-600'
                                     }`}
@@ -109,7 +109,7 @@ const OrderList = () => {
                         </div>
 
                         <div className="space-y-3">
-                            {order.itens.map((itemObj, index) => (
+                            {pedido.itens.map((itemObj, index) => (
                                 <div key={index} className="flex items-center justify-between bg-slate-50 p-3 rounded-xl">
                                     <div className="flex items-center gap-3">
                                         <div className="w-10 h-10 bg-white rounded-lg overflow-hidden border border-slate-100">
@@ -140,19 +140,19 @@ const OrderList = () => {
             </div>
 
             <Modal
-                isOpen={!!orderToDelete}
-                onClose={() => setOrderToDelete(null)}
+                isOpen={!!pedidoParaDeletar}
+                onClose={() => setPedidoParaDeletar(null)}
                 title="Confirmar Exclusão"
                 footer={
                     <>
                         <button
-                            onClick={() => setOrderToDelete(null)}
+                            onClick={() => setPedidoParaDeletar(null)}
                             className="px-4 py-2 text-slate-600 hover:bg-slate-100 rounded-lg font-medium transition-colors"
                         >
                             Cancelar
                         </button>
                         <button
-                            onClick={confirmDelete}
+                            onClick={confirmarExclusao}
                             className="px-4 py-2 bg-red-600 text-white rounded-lg font-medium hover:bg-red-700 transition-colors"
                         >
                             Excluir Pedido
@@ -161,11 +161,11 @@ const OrderList = () => {
                 }
             >
                 <p className="text-slate-600">
-                    Tem certeza que deseja excluir o pedido <strong>#{orderToDelete}</strong>? Esta ação não pode ser desfeita.
+                    Tem certeza que deseja excluir o pedido <strong>#{pedidoParaDeletar}</strong>? Esta ação não pode ser desfeita.
                 </p>
             </Modal>
         </div>
     );
 };
 
-export default OrderList;
+export default ListaPedidos;

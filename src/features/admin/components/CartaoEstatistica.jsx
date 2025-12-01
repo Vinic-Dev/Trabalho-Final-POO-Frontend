@@ -1,6 +1,6 @@
 import React from "react";
 
-const StatsCard = ({ icon: Icon, iconColor, iconBg, title, value }) => {
+const CartaoEstatistica = ({ icon: Icon, iconColor, iconBg, title, value }) => {
     return (
         <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
             <div className="flex justify-between items-start mb-4">
@@ -14,4 +14,4 @@ const StatsCard = ({ icon: Icon, iconColor, iconBg, title, value }) => {
     );
 };
 
-export default StatsCard;
+export default CartaoEstatistica;

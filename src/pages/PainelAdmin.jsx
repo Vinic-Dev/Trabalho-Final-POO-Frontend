@@ -2,20 +2,20 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Utensils, List, DollarSign, UtensilsCrossed } from "lucide-react";
 import useAuth from "../hooks/useAuth";
-import { useProducts } from "../context/ProductContext";
-import ProductForm from "../features/admin/components/ProductForm";
-import ProductList from "../features/admin/components/ProductList";
-import OrderList from "../features/admin/components/OrderList";
-import AdminSidebar from "../features/admin/components/AdminSidebar";
-import StatsCard from "../features/admin/components/StatsCard";
-import CategoryManager from "../features/admin/components/CategoryManager";
+import { useProdutos } from "../context/ContextoProduto";
+import FormularioProduto from "../features/admin/components/FormularioProduto";
+import ListaProdutos from "../features/admin/components/ListaProdutos";
+import ListaPedidos from "../features/admin/components/ListaPedidos";
+import BarraLateralAdmin from "../features/admin/components/BarraLateralAdmin";
+import CartaoEstatistica from "../features/admin/components/CartaoEstatistica";
+import GerenciadorCategorias from "../features/admin/components/GerenciadorCategorias";
 import { formatCurrency } from "../utils/formatters";
-import NotificationComponent from "../components/NotificationComponent";
+import ComponenteNotificacao from "../components/ComponenteNotificacao";
 
-const AdminDashboard = () => {
+const PainelAdmin = () => {
     const navigate = useNavigate();
     const { logout } = useAuth();
-    const { products, orders } = useProducts();
+    const { produtos, pedidos } = useProdutos();
     const [paginaAtiva, setPaginaAtiva] = useState("dashboard");
     const [editingProduct, setEditingProduct] = useState(null);
     const [activeTab, setActiveTab] = useState('products');
@@ -38,7 +38,7 @@ const AdminDashboard = () => {
     };
 
     const calculateTotalSales = () => {
-        return orders
+        return pedidos
             .filter(o => o.status === 'concluido')
             .reduce((acc, order) => {
                 const total = order.precoTotal || order.itens.reduce((sum, item) => sum + (item.item.preco * item.quantidade), 0);
@@ -48,9 +48,9 @@ const AdminDashboard = () => {
 
     return (
         <div className="min-h-screen bg-slate-50 flex">
-            <NotificationComponent />
+            <ComponenteNotificacao />
             {/* Sidebar */}
-            <AdminSidebar
+            <BarraLateralAdmin
                 activePage={paginaAtiva}
                 onNavigate={(page) => {
                     setPaginaAtiva(page);
@@ -82,37 +82,37 @@ const AdminDashboard = () => {
                 {paginaAtiva === 'dashboard' && (
                     <div className="space-y-6">
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                            <StatsCard
+                            <CartaoEstatistica
                                 icon={List}
                                 iconBg="bg-blue-50"
                                 iconColor="text-blue-600"
                                 title="Total de Pratos"
-                                value={products.length}
+                                value={produtos.length}
                             />
-                            <StatsCard
+                            <CartaoEstatistica
                                 icon={DollarSign}
                                 iconBg="bg-green-50"
                                 iconColor="text-green-600"
                                 title="Vendas Hoje"
                                 value={formatCurrency(calculateTotalSales())}
                             />
-                            <StatsCard
+                            <CartaoEstatistica
                                 icon={Utensils}
                                 iconBg="bg-amber-50"
                                 iconColor="text-amber-600"
                                 title="Pedidos Pendentes"
-                                value={orders.filter(o => o.status !== 'concluido').length}
+                                value={pedidos.filter(o => o.status !== 'concluido').length}
                             />
                         </div>
 
                         {/* Order List Section */}
-                        <OrderList />
+                        <ListaPedidos />
                     </div>
                 )}
 
                 {/* The 'novo-prato' page is now integrated into 'cardapio' as a tab, but keeping it for now if it's a separate flow */}
                 {paginaAtiva === 'novo-prato' && (
-                    <ProductForm
+                    <FormularioProduto
                         onSuccess={handleClearEdit}
                         initialData={editingProduct}
                         onClearEdit={() => setEditingProduct(null)}
@@ -147,16 +147,16 @@ const AdminDashboard = () => {
                         <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
                             {activeTab === 'products' ? (
                                 isEditing ? (
-                                    <ProductForm
+                                    <FormularioProduto
                                         onSuccess={() => setIsEditing(false)}
                                         initialData={editingProduct}
                                         onClearEdit={() => { setEditingProduct(null); setIsEditing(false); }}
                                     />
                                 ) : (
-                                    <ProductList onEdit={handleEditProduct} />
+                                    <ListaProdutos onEdit={handleEditProduct} />
                                 )
                             ) : (
-                                <CategoryManager />
+                                <GerenciadorCategorias />
                             )}
                         </div>
                     </div>
@@ -166,4 +166,4 @@ const AdminDashboard = () => {
     );
 };
 
-export default AdminDashboard;
+export default PainelAdmin;

@@ -1,17 +1,17 @@
 import React, { useState } from "react";
 import { Trash2, Edit, List } from "lucide-react";
-import { useProducts } from "../../../context/ProductContext";
+import { useProdutos } from "../../../context/ContextoProduto";
 import { formatCurrency } from "../../../utils/formatters";
 import Modal from "../../../components/ui/Modal";
 
-const ProductList = ({ onEdit }) => {
-    const { products, removeProduct } = useProducts();
-    const [productToDelete, setProductToDelete] = useState(null);
+const ListaProdutos = ({ onEdit }) => {
+    const { produtos, removerProduto } = useProdutos();
+    const [produtoParaDeletar, setProdutoParaDeletar] = useState(null);
 
-    const confirmDelete = () => {
-        if (productToDelete) {
-            removeProduct(productToDelete.id);
-            setProductToDelete(null);
+    const confirmarExclusao = () => {
+        if (produtoParaDeletar) {
+            removerProduto(produtoParaDeletar.id);
+            setProdutoParaDeletar(null);
         }
     };
 
@@ -20,18 +20,18 @@ const ProductList = ({ onEdit }) => {
             <div className="p-6 border-b border-slate-100 flex justify-between items-center">
                 <h2 className="font-bold text-lg text-slate-800">Itens no Cardápio</h2>
                 <span className="text-xs font-bold bg-slate-100 text-slate-500 px-3 py-1 rounded-full">
-                    {products.length} Itens
+                    {produtos.length} Itens
                 </span>
             </div>
 
-            {products.length === 0 ? (
+            {produtos.length === 0 ? (
                 <div className="p-12 text-center text-slate-400">
                     <List className="mx-auto mb-4" size={48} />
                     <p>Nenhum prato cadastrado ainda.</p>
                 </div>
             ) : (
                 <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {products.map((prato) => (
+                    {produtos.map((prato) => (
                         <div
                             key={prato.id}
                             className="group relative bg-white rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 flex overflow-hidden border border-gray-100 h-40 w-full text-left"
@@ -77,7 +77,7 @@ const ProductList = ({ onEdit }) => {
                                             <Edit size={18} />
                                         </button>
                                         <button
-                                            onClick={() => setProductToDelete(prato)}
+                                            onClick={() => setProdutoParaDeletar(prato)}
                                             className="p-2 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition-colors"
                                             title="Excluir"
                                         >
@@ -92,19 +92,19 @@ const ProductList = ({ onEdit }) => {
             )}
 
             <Modal
-                isOpen={!!productToDelete}
-                onClose={() => setProductToDelete(null)}
+                isOpen={!!produtoParaDeletar}
+                onClose={() => setProdutoParaDeletar(null)}
                 title="Confirmar Exclusão"
                 footer={
                     <>
                         <button
-                            onClick={() => setProductToDelete(null)}
+                            onClick={() => setProdutoParaDeletar(null)}
                             className="px-4 py-2 text-slate-600 hover:bg-slate-100 rounded-lg font-medium transition-colors"
                         >
                             Cancelar
                         </button>
                         <button
-                            onClick={confirmDelete}
+                            onClick={confirmarExclusao}
                             className="px-4 py-2 bg-red-600 text-white rounded-lg font-medium hover:bg-red-700 transition-colors"
                         >
                             Excluir Item
@@ -113,11 +113,11 @@ const ProductList = ({ onEdit }) => {
                 }
             >
                 <p className="text-slate-600">
-                    Tem certeza que deseja excluir o item <strong>{productToDelete?.name}</strong>? Esta ação não pode ser desfeita.
+                    Tem certeza que deseja excluir o item <strong>{produtoParaDeletar?.name}</strong>? Esta ação não pode ser desfeita.
                 </p>
             </Modal>
         </div >
     );
 };
 
-export default ProductList;
+export default ListaProdutos;

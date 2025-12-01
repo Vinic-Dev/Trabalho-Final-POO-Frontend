@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { X, CheckCircle, AlertCircle, Info } from 'lucide-react';
 
-const Toast = ({ message, type = 'info', onClose, duration = 3000 }) => {
+const Aviso = ({ message, type = 'info', onClose, duration = 3000 }) => {
     useEffect(() => {
         const timer = setTimeout(() => {
             onClose();
@@ -40,4 +40,4 @@ const Toast = ({ message, type = 'info', onClose, duration = 3000 }) => {
     );
 };
 
-export default Toast;
+export default Aviso;

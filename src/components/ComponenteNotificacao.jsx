@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import SockJS from 'sockjs-client';
 import Stomp from 'stompjs';
-import { useProducts } from '../context/ProductContext';
+import { useProdutos } from '../context/ContextoProduto';
 import { Bell } from 'lucide-react';
 
-const NotificationComponent = () => {
-    const { fetchOrders } = useProducts();
-    const [notification, setNotification] = useState(null);
+const ComponenteNotificacao = () => {
+    const { buscarPedidos } = useProdutos();
+    const [notificacao, setNotificacao] = useState(null);
 
     useEffect(() => {
         // 1. Connect to the WebSocket endpoint
@@ -25,14 +25,14 @@ const NotificationComponent = () => {
                 console.log('New Order Received:', novoPedido);
 
                 // Show centered notification
-                setNotification(novoPedido);
+                setNotificacao(novoPedido);
 
                 // Play sound (Uncomment if you add a notification.mp3 file to your public folder)
                 // const audio = new Audio('/notification.mp3');
                 // audio.play().catch(e => console.log('Audio play failed', e));
 
                 // Refresh orders list
-                fetchOrders();
+                buscarPedidos();
             });
         }, (error) => {
             console.error('WebSocket connection error:', error);
@@ -50,9 +50,9 @@ const NotificationComponent = () => {
                 console.warn("Erro ao desconectar WebSocket:", e);
             }
         };
-    }, [fetchOrders]);
+    }, [buscarPedidos]);
 
-    if (!notification) return null;
+    if (!notificacao) return null;
 
     return (
         <div className="fixed bottom-4 left-4 z-50 animate-in slide-in-from-bottom-5 duration-300">
@@ -62,10 +62,10 @@ const NotificationComponent = () => {
                 </div>
                 <div>
                     <h4 className="font-bold text-slate-800 text-sm">Novo Pedido!</h4>
-                    <p className="text-slate-600 text-xs">Mesa {notification.mesa}</p>
+                    <p className="text-slate-600 text-xs">Mesa {notificacao.mesa}</p>
                 </div>
                 <button
-                    onClick={() => setNotification(null)}
+                    onClick={() => setNotificacao(null)}
                     className="ml-2 text-slate-400 hover:text-slate-600"
                 >
                     ×
@@ -75,4 +75,4 @@ const NotificationComponent = () => {
     );
 };
 
-export default NotificationComponent;
+export default ComponenteNotificacao;

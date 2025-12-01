@@ -1,16 +1,19 @@
 import React from "react";
 import { formatCurrency } from "../utils/formatters";
 
-export default function Corpo({ products, addToCart }) {
+export default function Corpo({ produtos, adicionarAoCarrinho }) {
     return (
         <div className="max-w-5xl mx-auto space-y-12 p-6">
-            {Object.entries(products.reduce((acc, product) => {
-                const cat = product.categoria || 'Outros';
+            {Object.entries(produtos.reduce((acc, produto) => {
+                const catObj = produto.categoria;
+                const catNome = (typeof catObj === 'object' && catObj !== null) ? catObj.nome : catObj;
+                const cat = catNome || 'Outros';
+
                 if (!acc[cat]) acc[cat] = [];
-                acc[cat].push(product);
+                acc[cat].push(produto);
                 return acc;
-            }, {})).map(([category, items]) => (
-                <div key={category} className="space-y-6">
+            }, {})).map(([categoria, items]) => (
+                <div key={categoria} className="space-y-6">
                     {/* Category Separator */}
                     <div className="flex items-center gap-4">
                         <div className="h-1 flex-1 bg-gradient-to-r from-transparent to-red-200 rounded-full"></div>
@@ -18,7 +21,7 @@ export default function Corpo({ products, addToCart }) {
                             <div className="p-2 bg-red-50 rounded-full">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2" /><path d="M7 2v20" /><path d="M21 15V2v0a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7" /></svg>
                             </div>
-                            <h2 className="text-xl font-bold uppercase tracking-wider">{category.replace('_', ' ')}</h2>
+                            <h2 className="text-xl font-bold uppercase tracking-wider">{categoria.replace('_', ' ')}</h2>
                         </div>
                         <div className="h-1 flex-1 bg-gradient-to-l from-transparent to-red-200 rounded-full"></div>
                     </div>
@@ -28,7 +31,7 @@ export default function Corpo({ products, addToCart }) {
                         {items.map(card => (
                             <button
                                 key={card.id}
-                                onClick={() => addToCart(card)}
+                                onClick={() => adicionarAoCarrinho(card)}
                                 className="group relative bg-white rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col md:flex-row overflow-hidden border border-gray-100 h-auto md:h-40 w-full text-left"
                             >
                                 <div className="absolute left-0 top-0 h-1 md:h-full w-full md:w-1 bg-gradient-to-r md:bg-gradient-to-b from-red-400 to-amber-400 group-hover:h-2 md:group-hover:h-full md:group-hover:w-2 transition-all z-10"></div>
