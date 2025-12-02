@@ -45,7 +45,6 @@ const PaginaLogin = () => {
                             value={user}
                             onChange={(e) => setUser(e.target.value)}
                             className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-red-100 focus:border-red-500 outline-none bg-gray-50 focus:bg-white transition-all"
-                            placeholder="admin"
                         />
                     </div>
                     <div>
@@ -55,7 +54,6 @@ const PaginaLogin = () => {
                             value={pass}
                             onChange={(e) => setPass(e.target.value)}
                             className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-red-100 focus:border-red-500 outline-none bg-gray-50 focus:bg-white transition-all"
-                            placeholder="1234"
                         />
                     </div>
 

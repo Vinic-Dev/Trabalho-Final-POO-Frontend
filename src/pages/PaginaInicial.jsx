@@ -137,7 +137,6 @@ const PaginaInicial = () => {
                                             value={mesa}
                                             onChange={(e) => setMesa(e.target.value)}
                                             className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-red-100 focus:border-red-500 outline-none transition-all mb-4"
-                                            placeholder="Ex: 5"
                                         />
                                         <button
                                             onClick={handleFinalizarPedido}

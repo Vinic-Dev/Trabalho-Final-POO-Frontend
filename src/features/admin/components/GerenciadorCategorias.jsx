@@ -33,7 +33,6 @@ const GerenciadorCategorias = () => {
                     type="text"
                     value={novaCategoria}
                     onChange={(e) => setNovaCategoria(e.target.value)}
-                    placeholder="Nome da nova categoria..."
                     className="flex-1 px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-purple-100 focus:border-purple-500 outline-none transition-all"
                     disabled={enviando}
                 />
