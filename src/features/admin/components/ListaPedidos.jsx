@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useProdutos } from "../../../context/ContextoProduto";
 import { Clock, MapPin, CheckCircle2, ChefHat, Package, Trash2 } from "lucide-react";
-import { formatCurrency } from "../../../utils/formatters";
+import { formatCurrency, formatarData } from "../../../utils/formatters";
 import Modal from "../../../components/ui/Modal";
 
 const ListaPedidos = () => {
@@ -49,7 +49,7 @@ const ListaPedidos = () => {
                                 <div>
                                     <div className="flex items-center gap-2 text-slate-500 text-sm mb-1">
                                         <Clock size={14} />
-                                        <span>{pedido.data || "Data não informada"}</span>
+                                        <span>{formatarData(pedido.data)}</span>
                                     </div>
                                     <div className="flex items-center gap-2 font-bold text-slate-800">
                                         <MapPin size={16} className="text-red-500" />

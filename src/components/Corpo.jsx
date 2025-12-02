@@ -3,7 +3,7 @@ import { formatCurrency } from "../utils/formatters";
 
 export default function Corpo({ produtos, adicionarAoCarrinho }) {
     return (
-        <div className="max-w-5xl mx-auto space-y-12 p-6">
+        <div className="max-w-7xl mx-auto space-y-12 p-6">
             {Object.entries(produtos.reduce((acc, produto) => {
                 const catObj = produto.categoria;
                 const catNome = (typeof catObj === 'object' && catObj !== null) ? catObj.nome : catObj;
@@ -37,7 +37,7 @@ export default function Corpo({ produtos, adicionarAoCarrinho }) {
                                 <div className="absolute left-0 top-0 h-1 md:h-full w-full md:w-1 bg-gradient-to-r md:bg-gradient-to-b from-red-400 to-amber-400 group-hover:h-2 md:group-hover:h-full md:group-hover:w-2 transition-all z-10"></div>
 
                                 {/* Image Section */}
-                                <div className="w-full md:w-40 h-64 md:h-full relative shrink-0">
+                                <div className="w-full md:w-64 h-64 md:h-full relative shrink-0">
                                     {card.imageUrl ? (
                                         <img
                                             src={card.imageUrl}
