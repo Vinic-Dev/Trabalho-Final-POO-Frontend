@@ -105,20 +105,37 @@ export const ProvedorProduto = ({ children }) => {
 
     const atualizarProduto = async (produto) => {
         try {
-            const response = await fetch(`${import.meta.env.VITE_API_URL}/item/${produto.id}`, {
-                method: "PUT",
+            // 1. DELETE: Remove o produto antigo
+            const deleteResponse = await fetch(`${import.meta.env.VITE_API_URL}/item/${produto.id}`, {
+                method: "DELETE",
+            });
+
+            if (!deleteResponse.ok) {
+                console.error("Falha ao remover produto para atualização. Status:", deleteResponse.status);
+                if (deleteResponse.status === 500) {
+                    notificar("Não é possível atualizar este item pois ele faz parte de um pedido.", "error");
+                } else {
+                    notificar("Erro ao atualizar (remover) o produto.", "error");
+                }
+                return false;
+            }
+
+            // 2. POST: Cria o produto novamente com os dados atualizados
+            const { id, ...novoProduto } = produto; // Remove o ID para criar um novo
+            const createResponse = await fetch(`${import.meta.env.VITE_API_URL}/item`, {
+                method: "POST",
                 headers: {
                     "Content-Type": "application/json",
                 },
-                body: JSON.stringify(produto),
+                body: JSON.stringify(novoProduto),
             });
 
-            if (response.ok) {
+            if (createResponse.ok) {
                 buscarProdutos();
                 notificar("Produto atualizado com sucesso!", "success");
                 return true;
             } else {
-                notificar("Erro ao atualizar produto.", "error");
+                notificar("Erro ao recriar o produto.", "error");
                 return false;
             }
         } catch (error) {
